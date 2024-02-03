@@ -9,8 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8287584770047440847}
-  - component: {fileID: 5755079790098411388}
   - component: {fileID: 2604290290750992957}
+  - component: {fileID: 5817090397584270097}
   m_Layer: 0
   m_Name: GM_SessionManagerPF
   m_TagString: Untagged
@@ -33,22 +33,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5755079790098411388
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5624213319198796467}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c16ea03d75aa41a8a6c9377795c04794, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _interpolationDataSource: 0
-  props:
-    LobbyId: 
-    SessionName: 
 --- !u!114 &2604290290750992957
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -71,5 +55,22 @@ MonoBehaviour:
     RawGuidValue: da1999ba0aa1ae24c8a5d683663462ee
   NestedObjects: []
   NetworkedBehaviours:
-  - {fileID: 5755079790098411388}
+  - {fileID: 5817090397584270097}
   SimulationBehaviours: []
+--- !u!114 &5817090397584270097
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5624213319198796467}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f08b1891dd7f75a449936d1ad43a46c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _interpolationDataSource: 0
+  props:
+    LobbyId: 
+    SessionName: 
+  _StateSyned: 0

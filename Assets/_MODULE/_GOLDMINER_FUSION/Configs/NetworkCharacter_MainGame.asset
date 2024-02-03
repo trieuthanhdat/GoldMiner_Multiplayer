@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9fb61f666b4cf6e48a3f7401518b352a, type: 3}
+  m_Name: NetworkCharacter_MainGame
+  m_EditorClassIdentifier: 
+  networkCharacterType: 0
+  playerNetworkPf: {fileID: 4192309528497638683, guid: 15208ce90c5b07d4ab1ebb5d27e6beb5, type: 3}
+  useAvailableSpawnLocation: 0
+  spawnLocations:
+    spawnLocationList: []
