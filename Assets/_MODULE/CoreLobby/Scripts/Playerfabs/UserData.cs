@@ -18,7 +18,7 @@ public class UserData
 
     public string DisplayName
     {
-        get => PlayerPrefs.GetString("DisplayName", "Dev Name");
+        get => PlayerPrefs.GetString("DisplayName", "Dev Name"); 
         set
         {
             PlayerPrefs.SetString("DisplayName", value);

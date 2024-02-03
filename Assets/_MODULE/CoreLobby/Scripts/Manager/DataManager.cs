@@ -6,7 +6,6 @@ public class DataManager : MonoSingleton<DataManager>
 {
     public GameConfigs GameConfigs = null;
     public ImageConfigs ImageConfigs = null;
-
     
     public string CacheEmail
     {

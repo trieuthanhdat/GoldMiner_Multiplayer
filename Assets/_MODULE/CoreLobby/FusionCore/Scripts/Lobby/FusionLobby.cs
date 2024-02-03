@@ -39,22 +39,6 @@ namespace CoreGame
                     //GameConfigs.Instance.DisplayName = newName.Trim();
                 });
             }
-
-            //GameConfigs.Instance.DisplayName = displayName;// Caching
-
-            if (btnJoinRandomRoom != null)
-                btnJoinRandomRoom.onClick.AddListener(delegate
-                {
-                    FusionLauncher.Instance.JoinRandomRoom();
-                });
-            if (btnCreateRoom != null)
-                btnCreateRoom.onClick.AddListener(delegate
-                {
-                    FusionLauncher.Instance.CreateSession(new SessionProps
-                    {
-                        SessionName = input_SessionName.text,
-                    });
-                });
         }
 
         private void OnEnable()
@@ -62,9 +46,14 @@ namespace CoreGame
             FusionLauncher.Instance.OnUpdateSessionList += OnSessionListUpdated;
             FusionLauncher.Instance.OnJoinedLobby.AddListener(OnJoinedLobby);
 
+            if (btnJoinRandomRoom != null) btnJoinRandomRoom.onClick.AddListener(OnClick_JoinRandomSession);
+            if (btnCreateRoom != null) btnCreateRoom.onClick.AddListener(OnClick_CreateSession);
         }
         private void OnDisable()
         {
+
+            if (btnJoinRandomRoom != null) btnJoinRandomRoom.onClick.RemoveListener(OnClick_JoinRandomSession);
+            if (btnCreateRoom != null) btnCreateRoom.onClick.RemoveListener(OnClick_CreateSession);
             try
             {
                 FusionLauncher.Instance.OnUpdateSessionList -= OnSessionListUpdated;
@@ -81,8 +70,7 @@ namespace CoreGame
         void CreateNewSession()
         {
             SessionProps props = new SessionProps();
-
-            string roomName = input_SessionName.text.Trim();
+            string roomName = input_SessionName.text;
             props.SessionName = roomName;
             FusionLauncher.Instance.CreateSession(props);
         }

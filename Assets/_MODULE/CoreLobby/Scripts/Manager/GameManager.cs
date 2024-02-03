@@ -50,7 +50,7 @@ namespace CoreGame
         public TickTimer TimeSynced { get; private set; }
         #endregion
         
-        protected void Awake()
+        protected virtual void Awake()
         {
             if (FindObjectOfType<FusionLauncher>() == null)
             {
@@ -83,7 +83,7 @@ namespace CoreGame
         /// <summary>
         /// #All-Client
         /// </summary>
-        private async UniTaskVoid SpawnedAsync()
+        protected async virtual UniTaskVoid SpawnedAsync()
         {
             await UniTask.WaitUntil(() => FusionLauncher.Session != null);
 
@@ -96,7 +96,7 @@ namespace CoreGame
         /// <summary>
         /// #All-Client
         /// </summary>
-        private void OnMatchStarted()
+        protected virtual void OnMatchStarted()
         {
             GUIMatching?.SetActive(false);
 
@@ -120,13 +120,13 @@ namespace CoreGame
         /// <summary>
         /// #All-Client
         /// </summary>
-        public void ShowPrevGameEnd()
+        public virtual void ShowPrevGameEnd()
         {
             endGameGUI?.Show();
         }
 #if UNITY_EDITOR
 
-        private void OnValidate()
+        public virtual void OnValidate()
         {
             if (this.GUIMatching == null)
                 this.GUIMatching = FindObjectOfType<GUIMatching>(true);

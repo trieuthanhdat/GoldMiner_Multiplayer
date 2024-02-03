@@ -60,11 +60,22 @@ public class GameConfigs : ScriptableObject
         Debug.LogError($"Missing scene :{sceneType}");
         return null;
     }
+    public SceneReference GetMiniGameSceneReference(SceneType sceneType, NetworkCharacterType characterType)
+    {
+        foreach (var item in this.SceneArray)
+        {
+            if (item.SceneType == sceneType && item.characterType == characterType)
+                return item.SceneRef;
+        }
+        Debug.LogError($"Missing scene :{sceneType}");
+        return null;
+    }
 
     [System.Serializable]
     public struct SceneParam
     {
         public SceneType SceneType;
+        public NetworkCharacterType characterType;
         public SceneReference SceneRef;
     }
 }

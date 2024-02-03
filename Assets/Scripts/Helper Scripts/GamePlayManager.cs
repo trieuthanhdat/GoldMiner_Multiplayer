@@ -22,23 +22,21 @@ public class GamePlayManager : MonoSingleton<GamePlayManager>
     [SerializeField]
     private Image scoreFillUI;
 
-    void Awake()
+    protected virtual void Awake()
     {
-        
-        if (instance == null)
-            instance = this;
+        base.Awake();
         playerAnim = GetComponentInParent<PlayerAnimation>();
     }
 
     // Start is called before the first frame update
     void Start()
-     {
+    {
 
-    DisplayScore(0);
+        DisplayScore(0);
 
-    countdownText.text = countdownTimer.ToString();
+        countdownText.text = countdownTimer.ToString();
 
-    StartCoroutine("Countdown");
+        StartCoroutine("Countdown");
        
     }
    
@@ -102,7 +100,7 @@ public class GamePlayManager : MonoSingleton<GamePlayManager>
             UnityEngine.SceneManagement.SceneManager.LoadScene("GamePlay");
         }
 
-    } // class
+} // class
 
 //}
 

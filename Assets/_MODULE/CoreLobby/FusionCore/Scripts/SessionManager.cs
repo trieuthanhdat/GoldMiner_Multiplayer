@@ -165,7 +165,7 @@ namespace CoreGame
                 }
             }
         }
-        protected virtual void SpawnLocalPlayerAvatar()
+        public virtual void SpawnLocalPlayerAvatar()
         {
             if (Runner.Topology == SimulationConfig.Topologies.Shared)
             {
@@ -175,7 +175,7 @@ namespace CoreGame
         /// <summary>
         /// #Server
         /// </summary>
-        public void StartMatch(bool isCheating = false)
+        public virtual void StartMatch(bool isCheating = false)
         {
             this.ShowLog("F-Start Match!!!");
             LimitTimeFindMatchSynced = new TickTimer();
