@@ -1,0 +1,83 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53832d6ca443c07418d8ed61f819c14d, type: 3}
+  m_Name: GameConfigs
+  m_EditorClassIdentifier: 
+  PlayingMode: 2
+  LobbyId: Lobby_Dev
+  MaxPlayer: 10
+  GameTime: 120
+  MaxTimeFindMatch: 60
+  MaxSeekCount: 3
+  AllSkin:
+  - SkinId: 0
+    Texture: {fileID: 2800000, guid: b44071d7a06b12d438010ae010f230f2, type: 3}
+    SkinColor: {r: 1, g: 0.7741164, b: 0, a: 1}
+    Cost: 300
+  - SkinId: 1
+    Texture: {fileID: 2800000, guid: f2fbc4213ed7bc14491e23c29a1fd1b2, type: 3}
+    SkinColor: {r: 0, g: 0.4477452, b: 0.9245283, a: 1}
+    Cost: 300
+  - SkinId: 2
+    Texture: {fileID: 2800000, guid: 19080271582736b499893c18ca0034c4, type: 3}
+    SkinColor: {r: 0.7830189, g: 0.20240295, b: 0.5212504, a: 1}
+    Cost: 300
+  - SkinId: 3
+    Texture: {fileID: 2800000, guid: fb9dfc807c5e6c244bb2e015ccd22aa3, type: 3}
+    SkinColor: {r: 0.6893082, g: 0.9056604, b: 0, a: 1}
+    Cost: 300
+  - SkinId: 4
+    Texture: {fileID: 2800000, guid: d410831c175318e499c1a2293f866e22, type: 3}
+    SkinColor: {r: 0.8301887, g: 0.22399427, b: 0.08928439, a: 1}
+    Cost: 300
+  - SkinId: 5
+    Texture: {fileID: 2800000, guid: b982882eef170c942aaabfad31e598e8, type: 3}
+    SkinColor: {r: 0.32838303, g: 0.20240295, b: 0.7830189, a: 1}
+    Cost: 300
+  - SkinId: 6
+    Texture: {fileID: 2800000, guid: 5d2a0d77af80b1c4e90ee9d067a9fbd9, type: 3}
+    SkinColor: {r: 0.58137107, g: 0.19209681, b: 0.7169812, a: 1}
+    Cost: 300
+  - SkinId: 7
+    Texture: {fileID: 2800000, guid: a7e8712593f6fab46b2e30674a38591b, type: 3}
+    SkinColor: {r: 1, g: 0.24122664, b: 0, a: 1}
+    Cost: 300
+  - SkinId: 8
+    Texture: {fileID: 2800000, guid: 6f60b11bc23f84248b46c384aacc0864, type: 3}
+    SkinColor: {r: 0.8396226, g: 0.6035993, b: 0.24871837, a: 1}
+    Cost: 300
+  SceneArray:
+  - SceneType: 0
+    SceneRef:
+      sceneAsset: {fileID: 102900000, guid: 782db509785fc4d49a90596f13879a4e, type: 3}
+      scenePath: Assets/CoreGame/Scenes/Lobby.unity
+      sceneIndex: 1
+  - SceneType: 2
+    SceneRef:
+      sceneAsset: {fileID: 102900000, guid: 9c9bf525e37bab94e860b18172e359d3, type: 3}
+      scenePath: Assets/CoreGame/Scenes/GameScene.unity
+      sceneIndex: 2
+  - SceneType: 3
+    SceneRef:
+      sceneAsset: {fileID: 102900000, guid: 82869400b5810fa419130e76a2fda7df, type: 3}
+      scenePath: Assets/CoreGame/Scenes/GameOver.unity
+      sceneIndex: 3
+  - SceneType: 4
+    SceneRef:
+      sceneAsset: {fileID: 102900000, guid: e7a487b0ac0e7ee4bafc4ed54cd4017d, type: 3}
+      scenePath: Assets/CoreGame/Scenes/LoginScene.unity
+      sceneIndex: 0
+  ArrayRankingColors:
+  - {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  - {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  - {r: 0, g: 1, b: 1, a: 1}
+  - {r: 1, g: 1, b: 1, a: 1}
