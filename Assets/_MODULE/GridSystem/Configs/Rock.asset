@@ -16,5 +16,5 @@ MonoBehaviour:
   - itemType: 2
     itemName: Stone
     itemPrefab:
-    - {fileID: 0}
-    - {fileID: 0}
+    - {fileID: 2554021331248287760, guid: 6b77e53b54f51c24483bc45414358c59, type: 3}
+    - {fileID: 4976293554161785045, guid: bd373b2db5d0538439ca0942018951dd, type: 3}

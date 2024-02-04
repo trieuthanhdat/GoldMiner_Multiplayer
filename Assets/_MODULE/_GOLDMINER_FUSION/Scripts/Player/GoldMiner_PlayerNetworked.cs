@@ -10,6 +10,8 @@ using UnityEngine;
 public class GoldMiner_PlayerNetworked : PlayerNetworked
 {
     [SerializeField] GoldMiner_PlayerGUI _playerGUI;
+
+    
     //=== PlayerPf Color ===//
     #region _____PlayerPf Color_____
     [SerializeField]
@@ -43,10 +45,17 @@ public class GoldMiner_PlayerNetworked : PlayerNetworked
     public override void Spawned()
     {
         base.Spawned();
+        GoldMiner_NetworkItem.OnItemCollected += GoldMiner_NetworkItem_OnItemCollected;
         RpcSetNickName(LocalPlayerData.NickName);
         if (ColorIndex == 0) ColorIndex = (byte)(Object.InputAuthority + 1);
         if (_playerGUI) _playerGUI.SetUpPlayer(this);
     }
+
+    private void GoldMiner_NetworkItem_OnItemCollected(int score)
+    {
+        AdToScore(score);
+    }
+
     public override void OnBeforeSpawned(string displayName, bool isBot)
     {
         this.NickName = displayName;

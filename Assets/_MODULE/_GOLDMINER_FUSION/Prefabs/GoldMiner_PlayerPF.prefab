@@ -45,6 +45,7 @@ GameObject:
   - component: {fileID: 7788627871893915566}
   - component: {fileID: 8570049371379424450}
   - component: {fileID: 9161611127166306199}
+  - component: {fileID: 8992715531044143935}
   m_Layer: 0
   m_Name: GoldMiner_PlayerPF
   m_TagString: Player
@@ -212,6 +213,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
+  _DisplayNameSynced:
+    _length: 0
+    _data:
+      Data: 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  _IsBotSynced:
+    _value: 0
+  _StateSynced: 0
   _playerGUI: {fileID: 5943021142746573636}
   _colors:
   - {r: 0, g: 0, b: 0, a: 1}
@@ -224,6 +232,18 @@ MonoBehaviour:
     _data:
       Data: 700000006c0000006100000079000000650000007200000020000000320000000000000000000000000000000000000000000000000000000000000000000000
   _Score: 0
+--- !u!114 &8992715531044143935
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1162319900828967570}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75f86cc95dda88344989b255414b7d7c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1995188866465718607
 GameObject:
   m_ObjectHideFlags: 0
@@ -387,6 +407,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemHolder: {fileID: 9112829037695889915}
+  playerAnim: {fileID: 8992715531044143935}
+  hookMovement: {fileID: 3371514577078621632}
 --- !u!1 &3693742898672599493
 GameObject:
   m_ObjectHideFlags: 0

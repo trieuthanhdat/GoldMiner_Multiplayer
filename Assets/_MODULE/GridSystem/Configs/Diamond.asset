@@ -16,5 +16,5 @@ MonoBehaviour:
   - itemType: 1
     itemName: Diamond
     itemPrefab:
-    - {fileID: 0}
-    - {fileID: 0}
+    - {fileID: 4256933714376884116, guid: 2f5cf2a27b2e46c4b8c1d4407af38753, type: 3}
+    - {fileID: 7211805512568777337, guid: 6a8533d36354a744db5af72c32d8e5a1, type: 3}

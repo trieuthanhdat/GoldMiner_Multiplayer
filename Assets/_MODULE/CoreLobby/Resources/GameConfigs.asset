@@ -19,31 +19,31 @@ MonoBehaviour:
   LimitTimeFindMatch: 120
   SceneArray:
   - SceneType: 0
-    SceneName: Lobby
+    characterType: 0
     SceneRef:
       sceneAsset: {fileID: 102900000, guid: 782db509785fc4d49a90596f13879a4e, type: 3}
       scenePath: Assets/_MODULE/CoreLobby/Scenes/Lobby.unity
       sceneIndex: 0
   - SceneType: 2
-    SceneName: MainGame
+    characterType: 0
     SceneRef:
       sceneAsset: {fileID: 102900000, guid: 9c9bf525e37bab94e860b18172e359d3, type: 3}
       scenePath: Assets/_MODULE/CoreLobby/Scenes/GameScene.unity
       sceneIndex: 1
   - SceneType: 3
-    SceneName: GameOver
+    characterType: 0
     SceneRef:
       sceneAsset: {fileID: 102900000, guid: 82869400b5810fa419130e76a2fda7df, type: 3}
       scenePath: Assets/_MODULE/CoreLobby/Scenes/GameOver.unity
       sceneIndex: 2
   - SceneType: 4
-    SceneName: Login
+    characterType: 0
     SceneRef:
       sceneAsset: {fileID: 102900000, guid: e7a487b0ac0e7ee4bafc4ed54cd4017d, type: 3}
       scenePath: Assets/_MODULE/CoreLobby/Scenes/LoginScene.unity
       sceneIndex: 3
   - SceneType: 5
-    SceneName: Gold_miner
+    characterType: 1
     SceneRef:
       sceneAsset: {fileID: 102900000, guid: 2cda990e2423bbf4892e6590ba056729, type: 3}
       scenePath: Assets/_MODULE/_GOLDMINER_FUSION/Scenes/GoldMiner_Level1.unity

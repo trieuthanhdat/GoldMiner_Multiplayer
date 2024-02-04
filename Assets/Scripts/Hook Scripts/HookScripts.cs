@@ -4,19 +4,18 @@ using UnityEngine;
 
 public class HookScripts : MonoBehaviour
 {
-    [SerializeField]
-    private Transform itemHolder;
+    [SerializeField] private Transform itemHolder;
+    [SerializeField] private PlayerAnimation playerAnim;
+    [SerializeField] private HookMovement hookMovement;
   
     private bool itemAttached;
 
-    private HookMovement hookMovement;
 
-    private PlayerAnimation playerAnim;
 
     void Awake()
     {
-        hookMovement = GetComponentInParent<HookMovement>();
-        playerAnim = GetComponentInParent<PlayerAnimation>();
+        if(hookMovement == null) hookMovement = GetComponentInParent<HookMovement>();
+        if(playerAnim == null) playerAnim = GetComponentInParent<PlayerAnimation>();
     }
 
     void OnTriggerEnter2D(Collider2D target)
@@ -63,13 +62,13 @@ public class HookScripts : MonoBehaviour
 
                 itemAttached = false;
 
-               Transform objChild = itemHolder.GetChild(0);
+                Transform objChild = itemHolder.GetChild(0);
 
-               objChild.parent = null;
+                objChild.parent = null;
                 objChild.gameObject.SetActive(false); //deactive
               
-               playerAnim.IdleAnimation();
-                  SoundManager.instance.PullSound(false);
+                playerAnim.IdleAnimation();
+                SoundManager.instance.PullSound(false);
 
            }
 

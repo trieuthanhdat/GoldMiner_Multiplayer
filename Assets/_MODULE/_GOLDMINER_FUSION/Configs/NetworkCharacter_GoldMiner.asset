@@ -14,6 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   networkCharacterType: 1
   playerNetworkPf: {fileID: 7788627871893915566, guid: 88a5f8a67542cc14eaa41d341fc5fef2, type: 3}
-  useAvailableSpawnLocation: 0
+  useAvailableSpawnLocation: 1
   spawnLocations:
-    spawnLocationList: []
+    spawnLocationList:
+    - {x: 4.47, y: 2.3, z: 0}
+    - {x: -2.19, y: 2.3, z: 0}
+    - {x: -5.41, y: 2.3, z: 0}
+    - {x: 1.24, y: 2.3, z: 0}

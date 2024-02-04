@@ -16,6 +16,6 @@ MonoBehaviour:
   - itemType: 0
     itemName: Gold
     itemPrefab:
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
+    - {fileID: 6639416517334458525, guid: 1833c6d84b1ac7440ad5204cc9e7fb74, type: 3}
+    - {fileID: 5445351164770780645, guid: 373b91ffc68d5fb45939f7c1cc838dd2, type: 3}
+    - {fileID: 5801116607087841421, guid: 74271e197f33c7a4cb12c7d7c11b6ff4, type: 3}
