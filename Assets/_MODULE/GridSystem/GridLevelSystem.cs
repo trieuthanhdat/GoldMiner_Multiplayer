@@ -1,3 +1,5 @@
+using Fusion;
+using Fusion.Sockets;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,12 +10,12 @@ public class GridLevelSystem : MonoSingleton<GridLevelSystem>
     public List<Vector3> listGridPosition = new List<Vector3>();
     public List<Vector3> listPosition = new List<Vector3>();
     public static event Action OnCompleteBuildGrid;
+
     void Start()
     {
         CreateGridPositions();
         CreateSpawnPosition();
     }
-
     private void CreateGridPositions()
     {
         listGridPosition.Clear();
@@ -63,8 +65,6 @@ public class GridLevelSystem : MonoSingleton<GridLevelSystem>
         }
         OnCompleteBuildGrid?.Invoke();
     }
-
-
     public void OnDrawGizmos()
     {
         SetupPositionAndCreateGrid();
@@ -110,5 +110,10 @@ public class GridLevelSystem : MonoSingleton<GridLevelSystem>
             return Vector3.zero;
         }
         return listPosition[UnityEngine.Random.Range(0, listPosition.Count)];
+    }
+
+    public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
+    {
+        Debug.Log($"{nameof(GridLevelSystem)}: OnPlayerJoined on completeBuildGrid invoke");
     }
 }

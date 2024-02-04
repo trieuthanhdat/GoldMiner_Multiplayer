@@ -84,7 +84,6 @@ public class MainGame_PlayerNetwork : PlayerNetworked
         await UniTask.WaitUntil(() => FusionLauncher.Session != null, cancellationToken: ctsDespawned.Token);
         FusionLauncher.Session.AddPlayer(this);
         FusionLauncher.Session.OnStartMatch += OnMatchStarted;
-
         if (IsMineNotBot)
         {
             CameraManager.Default.SetTarget(this.transform, true);

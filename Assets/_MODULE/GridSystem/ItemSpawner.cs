@@ -1,27 +1,63 @@
 using UnityEngine;
 using System.Collections.Generic;
+using Fusion;
+using CoreGame;
+using Cysharp.Threading.Tasks;
 
-public class ItemSpawner : MonoBehaviour
+public class ItemSpawner : NetworkBehaviour
 {
     [SerializeField] private LevelConfig levelConfig;
     [SerializeField] private List<ItemConfig> itemConfigs;
     [SerializeField] private Transform itemParent;
 
+    private bool _completeGridBuild = false;
+    private bool _otherPlayerJoined = false;
+    private bool _hasSpawnedItems   = false;
+    public bool IsServer => Runner.IsSinglePlayer || (Runner.IsServer || Runner.IsSharedModeMasterClient);
+
     private void OnEnable()
     {
         GridLevelSystem.OnCompleteBuildGrid += GridLevelSystem_OnCompleteGridCreation;
+        FusionLauncher.OnOtherPlayerJoined  += FusionLauncher_OnOtherPlayerJoined;
+        FusionLauncher.Session.OnStartMatch += FusionLauncher_OnStartMatch;
     }
+
+    
+
     private void OnDisable()
     {
         GridLevelSystem.OnCompleteBuildGrid -= GridLevelSystem_OnCompleteGridCreation;
+        FusionLauncher.OnOtherPlayerJoined  -= FusionLauncher_OnOtherPlayerJoined;
+        FusionLauncher.Session.OnStartMatch += FusionLauncher_OnStartMatch;
+    }
+    private void FusionLauncher_OnStartMatch()
+    {
+        _otherPlayerJoined = true;
+    }
+    private void FusionLauncher_OnOtherPlayerJoined()
+    {
+        _otherPlayerJoined = true;
     }
     private void GridLevelSystem_OnCompleteGridCreation()
     {
+        _completeGridBuild = true;
+    }
+    public override void Spawned()
+    {
+        base.Spawned();
+        SpawnedAsync().Forget();
+    }
+    protected async UniTaskVoid SpawnedAsync()
+    {
+        await UniTask.WaitUntil(() => _completeGridBuild == true && _otherPlayerJoined == true);
+        Debug.Log($"{nameof(ItemSpawner)}: start to spawn items");
         SpawnItems();
     }
-
     void SpawnItems()
     {
+        //Allow Only Server to Spawn Items
+        if (!IsServer) return;
+        if (_hasSpawnedItems) return;
         if (levelConfig == null)
         {
             Debug.LogError($"{nameof(ItemSpawner)}: LevelConfig is not assigned.");
@@ -47,6 +83,7 @@ public class ItemSpawner : MonoBehaviour
                 }
             }
         }
+        _hasSpawnedItems = true;
     }
 
     void SpawnItem(ItemInfo itemInfo)
@@ -64,10 +101,20 @@ public class ItemSpawner : MonoBehaviour
 
         // Calculate random position using the static reference to GridLevelSystem
         Vector3 randomPosition = GridLevelSystem.Instance.GetRandomGridPosition();
+        Vector3 randomRotation = new Vector3(chosenPrefab.transform.position.x,
+                                             chosenPrefab.transform.position.y,
+                                             Random.Range(-360f, 360f));
 
         // Ensure that the chosen position is valid
-        var item = Instantiate(chosenPrefab, randomPosition, Quaternion.identity);
-        item.gameObject.SetActive(true);
+        if(chosenPrefab!= null)
+        {
+            Debug.Log($"{nameof(ItemSpawner)}: start spawning item {chosenPrefab.name}");
+            var item = Runner.Spawn(chosenPrefab, randomPosition, Quaternion.Euler(randomRotation));
+            item.gameObject.SetActive(true);
+            Debug.Log($"{nameof(ItemSpawner)}: spawned item {chosenPrefab.name}");
+        }
+        //OFFLINE
+        /* var item = Instantiate(chosenPrefab, randomPosition, Quaternion.identity);*/
 
         GridLevelSystem.Instance.RemovePosition(randomPosition);
         Debug.Log($"{nameof(ItemSpawner)}: Spawned {itemInfo.itemName} item at position {randomPosition}");

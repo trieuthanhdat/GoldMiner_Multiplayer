@@ -1702,7 +1702,7 @@ MonoBehaviour:
   disconnectBox: {fileID: 6115133536286539184}
   joinLobbyWhenAwake: 1
   autoStartMatchWhenFull: 1
-  autoReconnnect: 1
+  autoReconnnect: 0
   OnSessionStarted:
     m_PersistentCalls:
       m_Calls:
@@ -1721,6 +1721,8 @@ MonoBehaviour:
   OnJoinedLobby:
     m_PersistentCalls:
       m_Calls: []
+  _spawnedLocationTable:
+    _items: []
 --- !u!114 &3780421251898759342
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1832,7 +1834,7 @@ MonoBehaviour:
   m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 1080, y: 1920}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
