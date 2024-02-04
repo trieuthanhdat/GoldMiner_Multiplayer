@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 2300672118990543450}
   - component: {fileID: -2967113893069809965}
   - component: {fileID: -7963399540146580641}
+  - component: {fileID: -3086731495304111738}
   m_Layer: 0
   m_Name: diamond 2
   m_TagString: LargeGold
@@ -169,6 +170,7 @@ MonoBehaviour:
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: -7963399540146580641}
+  - {fileID: -3086731495304111738}
   SimulationBehaviours: []
 --- !u!114 &-7963399540146580641
 MonoBehaviour:
@@ -184,3 +186,31 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   itemScore: 20
+--- !u!114 &-3086731495304111738
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7211805512568777337}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _interpolationDataSource: 3
+  InterpolationSpace: 0
+  InterpolationTarget: {fileID: 0}
+  InterpolateErrorCorrection: 1
+  InterpolatedErrorCorrectionSettings:
+    MinRate: 3.3
+    MaxRate: 10
+    PosBlendStart: 0.25
+    PosBlendEnd: 1
+    PosMinCorrection: 0.025
+    PosTeleportDistance: 2
+    RotBlendStart: 0.1
+    RotBlendEnd: 0.5
+    RotTeleportRadians: 1.5
+  UseLegacySharedModeInterpolation: 0
+  TargetInterpolationDelay: 0.03

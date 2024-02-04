@@ -10,8 +10,6 @@ public class HookScripts : MonoBehaviour
   
     private bool itemAttached;
 
-
-
     void Awake()
     {
         if(hookMovement == null) hookMovement = GetComponentInParent<HookMovement>();
@@ -29,8 +27,6 @@ public class HookScripts : MonoBehaviour
             itemAttached = true;
 
             target.transform.parent = itemHolder;
-          
-
             hookMovement.HookAttachedItem();
 
             // animate player
@@ -41,15 +37,12 @@ public class HookScripts : MonoBehaviour
             {
 
                 SoundManager.instance.Gold();
-               
-}
+            }
             else if (target.tag == Tags.MIDDLE_STONE || target.tag == Tags.LARGE_STONE)
             {
 
                 SoundManager.instance.Stone();
-
             }
-
             SoundManager.instance.PullSound(true);
 
         } // if target is an item
@@ -59,7 +52,6 @@ public class HookScripts : MonoBehaviour
 
             if (itemAttached)
             {
-
                 itemAttached = false;
 
                 Transform objChild = itemHolder.GetChild(0);
@@ -70,7 +62,7 @@ public class HookScripts : MonoBehaviour
                 playerAnim.IdleAnimation();
                 SoundManager.instance.PullSound(false);
 
-           }
+            }
 
        } // deliver item
 

@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 2370939557751584059}
   - component: {fileID: -3353545671179478136}
   - component: {fileID: -4362976540057959060}
+  - component: {fileID: -2645684789394489827}
   m_Layer: 0
   m_Name: large stone
   m_TagString: LargeStone
@@ -159,6 +160,7 @@ MonoBehaviour:
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: -4362976540057959060}
+  - {fileID: -2645684789394489827}
   SimulationBehaviours: []
 --- !u!114 &-4362976540057959060
 MonoBehaviour:
@@ -174,3 +176,31 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   itemScore: 0
+--- !u!114 &-2645684789394489827
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2554021331248287760}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _interpolationDataSource: 3
+  InterpolationSpace: 0
+  InterpolationTarget: {fileID: 0}
+  InterpolateErrorCorrection: 1
+  InterpolatedErrorCorrectionSettings:
+    MinRate: 3.3
+    MaxRate: 10
+    PosBlendStart: 0.25
+    PosBlendEnd: 1
+    PosMinCorrection: 0.025
+    PosTeleportDistance: 2
+    RotBlendStart: 0.1
+    RotBlendEnd: 0.5
+    RotTeleportRadians: 1.5
+  UseLegacySharedModeInterpolation: 0
+  TargetInterpolationDelay: 0.03

@@ -1,12 +1,15 @@
-﻿using System.Collections;
+﻿using Fusion;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class HookMovement : MonoBehaviour{
+public class HookMovement : NetworkBehaviour
+{
     public float min_Z = -55f, max_Z = 55f;
     private float rotate_Speed = 55f;
-
-    private float rotate_Angle;
+    #region _____ NetWorked _____
+    [Networked] private float rotate_Angle { get; set; }
+    #endregion
     private bool rotate_Right;
     private bool canRotate;
 
@@ -34,11 +37,10 @@ public class HookMovement : MonoBehaviour{
     }
 
     // Update is called once per frame
-    void Update(){
+    public override void FixedUpdateNetwork()
+    {
         Rotate();
-        GetInput();
         MoveRope();
-        
     }
     void Rotate()
     {
@@ -48,12 +50,10 @@ public class HookMovement : MonoBehaviour{
         if (rotate_Right)
         {
             rotate_Angle += rotate_Speed * Time.deltaTime;
-
         }
         else
         {
             rotate_Angle -= rotate_Speed * Time.deltaTime;
-
         }
         transform.rotation = Quaternion.AngleAxis(rotate_Angle, Vector3.forward);
         if(rotate_Angle >= max_Z)
@@ -65,15 +65,12 @@ public class HookMovement : MonoBehaviour{
             rotate_Right = true;
         }
     } //can rotate
-    void GetInput()
+    public void StartHook()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (canRotate)
         {
-            if (canRotate)
-            {
-                canRotate = false;
-                moveDown = true;
-            }
+            canRotate = false;
+            moveDown = true;
         }
     } // get input
     void MoveRope(){
@@ -86,7 +83,6 @@ public class HookMovement : MonoBehaviour{
             if (moveDown)
             {
                 temp -= transform.up * Time.deltaTime * move_Speed;
-
             }
             else
             {
@@ -100,8 +96,6 @@ public class HookMovement : MonoBehaviour{
             if(temp.y>= initial_Y)
             {
                 canRotate = true;
-               
-               
                 // reset move speed
                 move_Speed = initial_Move_Speed;
                 SoundManager.instance.RopeStretch(false);
