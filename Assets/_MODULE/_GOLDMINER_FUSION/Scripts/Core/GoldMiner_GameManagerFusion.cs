@@ -90,14 +90,14 @@ public class GoldMiner_GameManagerFusion : NetworkBehaviour
             return;
 
         int maxScore = -1;
-       /* foreach (var player in _players.Values)
-        {
-            if (player.Score >= maxScore)
-            {
-                _winner = player;
-                maxScore = player.Score;
-            }
-        }*/
+        /* foreach (var player in _players.Values)
+         {
+             if (player.Score >= maxScore)
+             {
+                 _winner = player;
+                 maxScore = player.Score;
+             }
+         }*/
         _timer = TickTimer.CreateFromSeconds(Runner, _endDelay);
         _gameState = GameState.Ending;
     }
@@ -108,9 +108,9 @@ public class GoldMiner_GameManagerFusion : NetworkBehaviour
     public void Init()
     {
         scoreCount = 0;
-        DisplayScore(scoreCount);
+        DisplayScore();
     }
-    
+
     public void OnStartCountdown()
     {
         if (!Object.HasStateAuthority)
@@ -133,7 +133,7 @@ public class GoldMiner_GameManagerFusion : NetworkBehaviour
                 /*UI?.SetWaitingPlayers(count, HasStateAuthority);*/
                 break;
             case GameState.Starting:
-               /* UI?.SetCountdownTimer(_timer.RemainingTime(Runner));*/
+                /* UI?.SetCountdownTimer(_timer.RemainingTime(Runner));*/
 
                 if (Object.HasStateAuthority && _timer.Expired(Runner))
                 {
@@ -174,24 +174,19 @@ public class GoldMiner_GameManagerFusion : NetworkBehaviour
     #region _____ SCORE _____
     public void HandleScoreChange(GoldMiner_PlayerNetworked info)
     {
-        AddToScore(info.Score);
-        DisplayScore(info.Score);
+        if(info.IsMine) AddToScore(info.Score);
+        DisplayScore();
     }
     public void AddToScore(int score)
     {
         scoreCount += score;
+        Debug.Log($"{nameof(GoldMiner_GameManagerFusion)}: new score "+ scoreCount);
     }
-    public void DisplayScore(int scoreValue)
+    public void DisplayScore()
     {
-        if(scoreText) scoreText.text = "$ " + scoreCount;
+        if (scoreText) scoreText.text = "$ " + scoreCount;
         if (scoreFillUI) scoreFillUI.fillAmount = (float)scoreCount / 100f;
 
-        if (scoreCount >= 100)
-        {
-            /*StopCoroutine("Countdown");*/
-            SoundManager.instance.GameEnd();
-            GameConfigs.Default.LoadSceneNetwork(FusionLauncher.Instance.Runner, SceneType.GameOver);
-        }
     }
     #endregion
 

@@ -169,6 +169,7 @@ namespace CoreGame
         {
             if (Runner.Topology == SimulationConfig.Topologies.Shared)
             {
+                Debug.Log($"{nameof(SessionManager)}: start to Spawn local player avatar");
                 FusionLauncher.Instance.SpawnPlayerNetworked(Runner.LocalPlayer);
             }
         }

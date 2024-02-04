@@ -9,6 +9,7 @@ using CoreLobby;
 using Cysharp.Threading.Tasks;
 using UnityEngine.UIElements;
 using static UnityEditor.FilePathAttribute;
+using Sirenix.Utilities;
 
 namespace CoreGame
 {
@@ -58,7 +59,10 @@ namespace CoreGame
         [SerializeField] bool autoReconnnect = true;
 
         //public InputNetworkEvent<NetworkRunner, NetworkInput> OnInputEvent = new InputNetworkEvent<NetworkRunner, NetworkInput>();
-
+        //EVENTS
+        #region _____ EVENT ACTIONS _____
+        public static event Action OnOtherPlayerJoined;
+        #endregion
         public ConnectionStatus ConnectionStatus { get; private set; }
         public bool IsServer => Runner.IsSinglePlayer || (Runner.IsServer || Runner.IsSharedModeMasterClient);
 
@@ -68,9 +72,10 @@ namespace CoreGame
         public UnityButton OnJoinedLobby = new UnityButton();
         public Action<List<SessionInfo>> OnUpdateSessionList { get => onSessionListUpdated; set => onSessionListUpdated = value; }
         public string SessionConnect { get => PlayerPrefs.GetString(PREF_SESSION_NAME, string.Empty); set => PlayerPrefs.SetString(PREF_SESSION_NAME, value); }
-
         private bool _isSessionForMiniGame = false;
-        public SerializableDictionary<NetworkCharacterType, List<Vector3>> _spawnedLocationTable = new SerializableDictionary<NetworkCharacterType, List<Vector3>>(); 
+
+        public SerializableDictionary<NetworkCharacterType, List<Vector3>> _spawnedLocationTable = new SerializableDictionary<NetworkCharacterType, List<Vector3>>();
+
         protected override void OnInitiate()
         {
             DontDestroyOnLoad(this.gameObject);
@@ -83,7 +88,6 @@ namespace CoreGame
             {
                 loader = GetComponent<NetworkSceneManagerDefault>();
             }
-
             this.UIMatching?.IsVisible(false);
 
             if (joinLobbyWhenAwake)
@@ -93,11 +97,11 @@ namespace CoreGame
         private void InitTableData()
         {
             if (networkCharacterConfigTable == null) return;
-
             foreach (var characterConfig in networkCharacterConfigTable)
             {
+                var spawnLocations = new List<Vector3>();
                 var characterKey = characterConfig.Key;
-                var spawnLocations = characterConfig.Value.spawnLocations.spawnLocationList;
+                spawnLocations.AddRange(characterConfig.Value.spawnLocations.spawnLocationList);
 
                 if (_spawnedLocationTable.ContainsKey(characterKey))
                 {
@@ -156,7 +160,7 @@ namespace CoreGame
             {
                 LobbyId = GameConfigs.LobbyId,
                 SessionName = string.Empty,
-            }, GameConfigs.PlayingMode != GameMode.Shared, PlayMiniGameGoldMiner);
+            }, GameConfigs.PlayingMode != GameMode.Shared);
         }
         public virtual void Connect()
         {
@@ -213,26 +217,26 @@ namespace CoreGame
         public virtual void CreateSession(SessionProps props)
         {
             this.ShowLog($"Create Session:{props.SessionName}");
-            StartSession(props, GameConfigs.PlayingMode != GameMode.Shared, PlayMiniGameGoldMiner);
+            StartSession(props, GameConfigs.PlayingMode != GameMode.Shared);
         }
         /// <summary>
         /// Start Session!!!
         /// </summary>
-       protected async virtual void StartSession(SessionProps props, bool disableClientSessionCreation = false, bool isSessionForMiniGame = false)
+       protected async virtual void StartSession(SessionProps props, bool disableClientSessionCreation = false)
         {
             Connect();
             SetConnectionStatus(ConnectionStatus.Starting);
 
             GameMode mode = GameConfigs.PlayingMode;
             Runner.ProvideInput = (mode != GameMode.Server);
-            _isSessionForMiniGame = isSessionForMiniGame;
+            _isSessionForMiniGame = PlayMiniGameGoldMiner;
             LoadingScreen.Instance.Show("Connecting");
 
             
-            var sceneIndex = !_isSessionForMiniGame ? GameConfigs.GetSceneReference(SceneType.GameScene).SceneIndex :
+            var sceneIndex = !PlayMiniGameGoldMiner ? GameConfigs.GetSceneReference(SceneType.GameScene).SceneIndex :
                                                       GameConfigs.GetMiniGameSceneReference(SceneType.MiniGameScene, 
                                                                                 NetworkCharacterType.GOLD_MINER).SceneIndex;
-            Debug.Log($"{nameof(FusionLauncher)}: scene index {sceneIndex}");
+            Debug.Log($"{nameof(FusionLauncher).ToUpper()}: scene index {sceneIndex}");
             //IsVisibleLoadingScr(true);
             await Runner.StartGame(new StartGameArgs
             {
@@ -283,7 +287,7 @@ namespace CoreGame
                 SessionName = SessionConnect,
                 CustomLobbyName = lobbyId,
                 ObjectPool = FindObjectOfType<FusionPrebabPools>(),
-                Scene = !_isSessionForMiniGame ? GameConfigs.GetSceneReference(SceneType.GameScene).SceneIndex :
+                Scene = !PlayMiniGameGoldMiner ? GameConfigs.GetSceneReference(SceneType.GameScene).SceneIndex :
                                                  GameConfigs.GetMiniGameSceneReference(SceneType.MiniGameScene,
                                                                                NetworkCharacterType.GOLD_MINER).SceneIndex,
                 DisableClientSessionCreation = true
@@ -354,16 +358,16 @@ namespace CoreGame
         {
             if (runner != null)
             {
-                Debug.Log($"{typeof(FusionLauncher)}: Is session for mini Game {_isSessionForMiniGame}");
-                var charConfig    = _isSessionForMiniGame ? networkCharacterConfigTable[NetworkCharacterType.GOLD_MINER] :
+                var charConfig    = PlayMiniGameGoldMiner ? networkCharacterConfigTable[NetworkCharacterType.GOLD_MINER] :
                                                             networkCharacterConfigTable[NetworkCharacterType.MAIN_GAME ] ;
 
-                var spawnPosition = _isSessionForMiniGame ? charConfig.useAvailableSpawnLocation ? GetRandomPositionFromConfig(NetworkCharacterType.GOLD_MINER) :
+                var spawnPosition = PlayMiniGameGoldMiner ? charConfig.useAvailableSpawnLocation ? GetAvailablePositionFromConfig(NetworkCharacterType.GOLD_MINER, playerRef) :
                                                             new Vector3(UnityEngine.Random.value * 5, 0, -Constant.ROOM_POS_Z) :
                                                             new Vector3(UnityEngine.Random.value * 5, 0, -Constant.ROOM_POS_Z) ;
-                var spawnRotation = _isSessionForMiniGame ? Quaternion.identity :
+                var spawnRotation = PlayMiniGameGoldMiner ? Quaternion.identity :
                                                             Quaternion.Euler(0, UnityEngine.Random.value * 360f, 0);
-                Debug.Log($"{nameof(FusionLauncher)}: charConfig {charConfig.networkCharacterType} spawn location: {spawnPosition} rotaion: {spawnRotation}");
+                Debug.Log($"{nameof(FusionLauncher).ToUpper()}: charConfig {charConfig.networkCharacterType} spawn location: {spawnPosition} rotaion: {spawnRotation}");
+                
                 runner.Spawn(charConfig.playerNetworkPf, 
                              spawnPosition, 
                              spawnRotation, 
@@ -381,7 +385,7 @@ namespace CoreGame
             }
         }
         //NOT YET DONE
-        private Vector3 GetRandomPositionFromConfig(NetworkCharacterType networkCharacterType)
+        private Vector3 GetAvailablePositionFromConfig(NetworkCharacterType networkCharacterType, PlayerRef player)
         {
             if (networkCharacterConfigTable == null || !_spawnedLocationTable.ContainsKey(networkCharacterType))
             {
@@ -395,13 +399,13 @@ namespace CoreGame
                 return Vector3.zero;
             }
 
-            int randomIndex = UnityEngine.Random.Range(0, positionList.Count);
-            Vector3 randomPosition = positionList[randomIndex];
-
+            int index = player % positionList.Count;
+            Vector3 position = positionList[index];
+            Debug.Log($"{nameof(FusionLauncher).ToUpper()}: next spawn position {position} index {index}");
             // Remove the selected position from the list.
-            positionList.RemoveAt(randomIndex);
+            /*positionList.RemoveAt(index);*/
 
-            return randomPosition;
+            return position;
         }
 
 
@@ -443,25 +447,28 @@ namespace CoreGame
 
         public virtual void OnPlayerJoined(NetworkRunner runner, PlayerRef playerRef)
         {
-            this.ShowLog($"Player {playerRef} had Joined!");
+            Debug.Log($"{nameof(FusionLauncher).ToUpper()}: Player {playerRef} had Joined!");
             if (Session == null && IsServer)
             {
-                Session = runner.Spawn(this.SessionPf, Vector3.zero, Quaternion.identity, Runner.LocalPlayer);
+                var charConfig = PlayMiniGameGoldMiner ? networkCharacterConfigTable[NetworkCharacterType.GOLD_MINER] :
+                                                         networkCharacterConfigTable[NetworkCharacterType.MAIN_GAME];
+
+                Session = runner.Spawn(charConfig.sessionManager, Vector3.zero, Quaternion.identity, Runner.LocalPlayer);
                 Session.transform.SetParent(this.transform);
             }
-
-            //if (runner.IsServer || runner.Topology == SimulationConfig.Topologies.Shared && playerRef == runner.LocalPlayer)
-            //{
-            //    if (playerRef == runner.LocalPlayer)
-            //    {
-            //        SpawnPlayerNetworked(playerRef);
-            //    }
-            //    else
-            //    {
-            //        Debug.LogError($"Local-Player:{runner.LocalPlayer} # playerSpawn:{playerRef}");
-            //    }
-            //}
-
+            OnOtherPlayerJoined?.Invoke();
+            /*if (runner.IsServer || runner.Topology == SimulationConfig.Topologies.Shared && playerRef == runner.LocalPlayer)
+            {
+                if (playerRef == runner.LocalPlayer)
+                {
+                    SpawnPlayerNetworked(playerRef);
+                }
+                else
+                {
+                    Debug.LogError($"Local-Player:{runner.LocalPlayer} # playerSpawn:{playerRef}");
+                }
+            }
+            */
             SetConnectionStatus(ConnectionStatus.Started);
         }
 

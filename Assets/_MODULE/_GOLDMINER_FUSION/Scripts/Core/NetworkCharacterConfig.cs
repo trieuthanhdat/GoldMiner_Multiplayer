@@ -1,4 +1,5 @@
-﻿using Fusion;
+﻿using CoreGame;
+using Fusion;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,6 +9,7 @@ public class NetworkCharacterConfig : ScriptableObject
 {
     public NetworkCharacterType networkCharacterType;
     public NetworkObject playerNetworkPf;
+    public SessionManager sessionManager;
     [Space(50)]
     public bool useAvailableSpawnLocation = false;
     public GameSpawnLocationConfig spawnLocations;

@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   networkCharacterType: 0
   playerNetworkPf: {fileID: 4192309528497638683, guid: 15208ce90c5b07d4ab1ebb5d27e6beb5, type: 3}
+  sessionManager: {fileID: 8845546617191538614, guid: 321df0675a364fa4f997e2497deb3641, type: 3}
   useAvailableSpawnLocation: 0
   spawnLocations:
     spawnLocationList: []
