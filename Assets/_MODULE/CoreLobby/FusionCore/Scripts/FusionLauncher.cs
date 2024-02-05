@@ -120,8 +120,7 @@ namespace CoreGame
             string lobbyId = GameConfigs.LobbyId;
             lobbyManager?.Show(lobbyId);
             await EnterLobby(lobbyId);
-            if (autoReconnnect)
-                Reconnect().Forget();
+            if (autoReconnnect) Reconnect().Forget();
         }
 
 #if UNITY_EDITOR
@@ -511,8 +510,21 @@ namespace CoreGame
                 InputData.Direction = direction3D;
             }
         }
+        private const string BUTTON_FIRE1 = "Fire1";
         public virtual void OnInput(NetworkRunner runner, NetworkInput input)
         {
+            //MINI GAME - GOLD MINER
+            if(PlayMiniGameGoldMiner)
+            {
+                GoldMinerInput localInput = new GoldMinerInput();
+                localInput.Buttons.Set(GoldMinerButton.Fire, Input.GetButton(BUTTON_FIRE1));
+
+                Debug.Log($"{nameof(FusionLauncher).ToUpper()}: on input {localInput}");
+                input.Set(localInput);
+                return;
+            }
+            
+
             //inputData.ButtonFlags |= Input.GetKey(KeyCode.W) ? ButtonFlag.FORWARD : 0;
             //inputData.ButtonFlags |= Input.GetKey(KeyCode.A) ? ButtonFlag.LEFT : 0;
             //inputData.ButtonFlags |= Input.GetKey(KeyCode.S) ? ButtonFlag.BACKWARD : 0;
@@ -520,7 +532,6 @@ namespace CoreGame
 
             //_data.ButtonFlags |= Input.GetMouseButtonDown(0) ? ButtonFlag.MOUSE_DOWN : 0;
             //_data.ButtonFlags |= Input.GetMouseButtonUp(0) ? ButtonFlag.MOUSE_UP : 0;
-
             if (!Constant.IS_MOBILE_BUILD)
             {
                 Vector3 direction = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical"));
