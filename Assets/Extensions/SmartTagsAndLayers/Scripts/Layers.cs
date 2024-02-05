@@ -12,6 +12,7 @@ namespace SmartTagsAndLayers
 		public static Layer Default = new Layer("Default");
 		public static Layer TransparentFX = new Layer("TransparentFX");
 		public static Layer IgnoreRaycast = new Layer("Ignore Raycast");
+		public static Layer Item_collission = new Layer("Item_collission");
 		public static Layer Water = new Layer("Water");
 		public static Layer UI = new Layer("UI");
 		
@@ -24,6 +25,7 @@ namespace SmartTagsAndLayers
 			Default,
 			TransparentFX,
 			IgnoreRaycast,
+			Item_collission,
 			Water,
 			UI,
 		};

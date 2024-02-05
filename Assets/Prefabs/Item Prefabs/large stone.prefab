@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: -3353545671179478136}
   - component: {fileID: -4362976540057959060}
   - component: {fileID: -2645684789394489827}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: large stone
   m_TagString: LargeStone
   m_Icon: {fileID: 0}
@@ -78,7 +78,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 3
-  m_Sprite: {fileID: 5321153135489542722, guid: c0619f4ef76dff640885ad002c14f76c, type: 3}
+  m_Sprite: {fileID: 3689368896547579015, guid: c0619f4ef76dff640885ad002c14f76c, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -176,6 +176,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   itemScore: 0
+  spriteRenderer: {fileID: 2554021331248287791}
 --- !u!114 &-2645684789394489827
 MonoBehaviour:
   m_ObjectHideFlags: 0

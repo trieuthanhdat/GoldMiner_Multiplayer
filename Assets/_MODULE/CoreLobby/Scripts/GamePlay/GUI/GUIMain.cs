@@ -37,7 +37,7 @@ public class GUIMain : MonoBehaviour
         else
             txtGoldDisplay?.SetText("N/A");
     }
-    public async UniTaskVoid OnMatchPrepareAsync()
+    public async UniTaskVoid OnMatchPrepareAsync(bool openGameHubWhenFinish = true)
     {
         SetVisible(true);
         objPrepareHub?.SetVisible(true);
@@ -58,11 +58,12 @@ public class GUIMain : MonoBehaviour
             await UniTask.Delay(1000);
             delay -= 1000;
         }
-
-        objGameHub?.SetVisible(true);
         objPrepareHub?.SetVisible(false);
+        if (openGameHubWhenFinish)
+        {
+            objGameHub?.SetVisible(true);
+        }
     }
-
     public void SetVisible(bool isVisible)
     {
         canvasGroup?.SetVisible(isVisible);

@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using Fusion;
 using CoreGame;
 using Cysharp.Threading.Tasks;
+using System.Threading;
 
 public class ItemSpawner : NetworkBehaviour
 {
     [SerializeField] private LevelConfig levelConfig;
     [SerializeField] private List<ItemConfig> itemConfigs;
     [SerializeField] private Transform itemParent;
+    protected CancellationTokenSource ctsDespawned = new CancellationTokenSource();
 
     private bool _completeGridBuild = false;
     private bool _otherPlayerJoined = false;
@@ -18,17 +20,6 @@ public class ItemSpawner : NetworkBehaviour
     private void OnEnable()
     {
         GridLevelSystem.OnCompleteBuildGrid += GridLevelSystem_OnCompleteGridCreation;
-        FusionLauncher.OnOtherPlayerJoined  += FusionLauncher_OnOtherPlayerJoined;
-        FusionLauncher.Session.OnStartMatch += FusionLauncher_OnStartMatch;
-    }
-
-    
-
-    private void OnDisable()
-    {
-        GridLevelSystem.OnCompleteBuildGrid -= GridLevelSystem_OnCompleteGridCreation;
-        FusionLauncher.OnOtherPlayerJoined  -= FusionLauncher_OnOtherPlayerJoined;
-        FusionLauncher.Session.OnStartMatch += FusionLauncher_OnStartMatch;
     }
     private void FusionLauncher_OnStartMatch()
     {
@@ -42,6 +33,13 @@ public class ItemSpawner : NetworkBehaviour
     {
         _completeGridBuild = true;
     }
+    public override void Despawned(NetworkRunner runner, bool hasState)
+    {
+        GridLevelSystem.OnCompleteBuildGrid -= GridLevelSystem_OnCompleteGridCreation;
+        FusionLauncher.OnOtherPlayerJoined -= FusionLauncher_OnOtherPlayerJoined;
+        if(FusionLauncher.Session) FusionLauncher.Session.OnStartMatch -= FusionLauncher_OnStartMatch;
+        base.Despawned(runner, hasState);
+    }
     public override void Spawned()
     {
         base.Spawned();
@@ -49,6 +47,11 @@ public class ItemSpawner : NetworkBehaviour
     }
     protected async UniTaskVoid SpawnedAsync()
     {
+        await UniTask.WaitUntil(() => FusionLauncher.Session != null && GoldMiner_GameManagerFusion.Instance != null,
+                                      cancellationToken: ctsDespawned.Token);
+        FusionLauncher.OnOtherPlayerJoined  += FusionLauncher_OnOtherPlayerJoined;
+        FusionLauncher.Session.OnStartMatch += FusionLauncher_OnStartMatch;
+
         await UniTask.WaitUntil(() => _completeGridBuild == true && _otherPlayerJoined == true);
         Debug.Log($"{nameof(ItemSpawner)}: start to spawn items");
         SpawnItems();

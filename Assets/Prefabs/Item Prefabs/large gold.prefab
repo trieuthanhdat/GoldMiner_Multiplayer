@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: -4106234797688456981}
   - component: {fileID: -2450796113362388028}
   - component: {fileID: 4976310233222257302}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: large gold
   m_TagString: LargeGold
   m_Icon: {fileID: 0}
@@ -176,6 +176,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   itemScore: 30
+  spriteRenderer: {fileID: 6639416517334458498}
 --- !u!114 &4976310233222257302
 MonoBehaviour:
   m_ObjectHideFlags: 0

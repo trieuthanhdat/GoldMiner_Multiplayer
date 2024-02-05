@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: -9191109303687280475}
   - component: {fileID: 4478330120462001294}
   - component: {fileID: 4597050785489833495}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: middle stone
   m_TagString: MiddleStone
   m_Icon: {fileID: 0}
@@ -78,7 +78,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 3
-  m_Sprite: {fileID: 3689368896547579015, guid: c0619f4ef76dff640885ad002c14f76c, type: 3}
+  m_Sprite: {fileID: 5321153135489542722, guid: c0619f4ef76dff640885ad002c14f76c, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -125,7 +125,7 @@ PolygonCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.5, y: 0.6}
+    oldSize: {x: 0.55, y: 0.46}
     newSize: {x: 0.5, y: 0.6}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -204,6 +204,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   itemScore: 0
+  spriteRenderer: {fileID: 4976293554161785046}
 --- !u!114 &4597050785489833495
 MonoBehaviour:
   m_ObjectHideFlags: 0

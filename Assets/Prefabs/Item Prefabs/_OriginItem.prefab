@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: -4472250164541940271}
   - component: {fileID: -475241746712838752}
   m_Layer: 3
-  m_Name: small gold
+  m_Name: _OriginItem
   m_TagString: SmallGold
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -156,7 +156,7 @@ MonoBehaviour:
   AoiPositionSource: {fileID: 0}
   Flags: 2305
   NetworkGuid:
-    RawGuidValue: 74271e197f33c7a4cb12c7d7c11b6ff4
+    RawGuidValue: dd7f3e10e8529ae44aa113a6efdbbd3c
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: -4472250164541940271}

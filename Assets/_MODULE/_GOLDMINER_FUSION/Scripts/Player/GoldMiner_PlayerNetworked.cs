@@ -8,11 +8,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GoldMiner_PlayerNetworked : PlayerNetworked, INetworkRunnerCallbacks
+public class GoldMiner_PlayerNetworked : PlayerNetworked
 {
     [SerializeField] GoldMiner_PlayerGUI _playerGUI;
     [SerializeField] HookMovement _hookMovement;
-    
+    public HookMovement HookMovement { get { return _hookMovement; } }
     //=== PlayerPf Color ===//
     #region _____PlayerPf Color_____
     [SerializeField]
@@ -34,8 +34,9 @@ public class GoldMiner_PlayerNetworked : PlayerNetworked, INetworkRunnerCallback
 
     [Networked(OnChanged = nameof(OnPlayerChanged))]
     public int Score { get; protected set; }
-    #endregion
     [Networked] private NetworkButtons _buttonsPrevious { get; set; }
+    #endregion
+    private GoldMiner_GameManagerFusion _gameManagerFusion;
 
     [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.StateAuthority)]
     private void RpcSetNickName(string nickName)
@@ -67,18 +68,26 @@ public class GoldMiner_PlayerNetworked : PlayerNetworked, INetworkRunnerCallback
         this.IsBotSynced = isBot;
         LocalPlayerData.NickName = displayName;
         InitScore();
-
-        GoldMiner_GameManagerFusion.Instance.State = GoldMiner_GameManagerFusion.GameState.Waiting;
     }
     protected async override UniTaskVoid SpawnedAsync()
     {
-        await UniTask.WaitUntil(() => FusionLauncher.Session != null, cancellationToken: ctsDespawned.Token);
+        await UniTask.WaitUntil(() => FusionLauncher.Session != null && GoldMiner_GameManagerFusion.Instance != null,
+                                      cancellationToken: ctsDespawned.Token);
         FusionLauncher.Session.AddPlayer(this);
         FusionLauncher.Session.OnStartMatch += OnMatchStarted;
+        _gameManagerFusion = GoldMiner_GameManagerFusion.Instance;
+        _gameManagerFusion.State = GoldMiner_GameManagerFusion.GameState.Waiting;
     }
 
     protected override void OnMatchStarted()
     {
+        MatchStartAsync().Forget();
+    }
+    protected async UniTaskVoid MatchStartAsync()
+    {
+        await UniTask.WaitUntil(() => _gameManagerFusion.State == GoldMiner_GameManagerFusion.GameState.Running);
+        this.StateSynced = StateOfPlayer.Playing;
+
     }
 
     public void InitScore()
@@ -89,10 +98,8 @@ public class GoldMiner_PlayerNetworked : PlayerNetworked, INetworkRunnerCallback
     {
         playerInfo.Behaviour.HandlePlayerChanged(playerInfo.Behaviour);
     }
-
     private void HandlePlayerChanged(GoldMiner_PlayerNetworked playerInfo)
     {
-        Debug.Log($"{nameof(GoldMiner_PlayerNetworked).ToUpper()}: Handle player changed => is Mine {IsMine}");
         StartCoroutine(Co_HandleLocalScoreChange(playerInfo));
     }
     private IEnumerator Co_HandleLocalScoreChange(GoldMiner_PlayerNetworked playerInfo)
@@ -104,7 +111,7 @@ public class GoldMiner_PlayerNetworked : PlayerNetworked, INetworkRunnerCallback
     }
     #region ====HANDLE INPUTS====
     private const string BUTTON_FIRE1 = "Fire1";
-    public void OnInput(NetworkRunner runner, NetworkInput input)
+    public override void OnInput(NetworkRunner runner, NetworkInput input)
     {
         GoldMinerInput localInput = new GoldMinerInput();
         localInput.Buttons.Set(GoldMinerButton.Fire, Input.GetButton(BUTTON_FIRE1));
@@ -114,10 +121,9 @@ public class GoldMiner_PlayerNetworked : PlayerNetworked, INetworkRunnerCallback
     }
     public override void FixedUpdateNetwork()
     {
-        
         if (!IsMine)
             return;
-        if (StateSynced == StateOfPlayer.Playing)
+        if(StateSynced == StateOfPlayer.Playing)
         {
             if (Object.IsValid && GetInput<GoldMinerInput>(out var input))
             {
@@ -141,21 +147,6 @@ public class GoldMiner_PlayerNetworked : PlayerNetworked, INetworkRunnerCallback
     {
         Score += score;
     }
-    public void OnPlayerJoined(NetworkRunner runner, PlayerRef player) { }
-    public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) { }
-    public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) { }
-    public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason) { }
-    public void OnConnectedToServer(NetworkRunner runner) { }
-    public void OnDisconnectedFromServer(NetworkRunner runner) { }
-    public void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token) { }
-    public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason) { }
-    public void OnUserSimulationMessage(NetworkRunner runner, SimulationMessagePtr message) { }
-    public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList) { }
-    public void OnCustomAuthenticationResponse(NetworkRunner runner, Dictionary<string, object> data) { }
-    public void OnHostMigration(NetworkRunner runner, HostMigrationToken hostMigrationToken) { }
-    public void OnReliableDataReceived(NetworkRunner runner, PlayerRef player, ArraySegment<byte> data) { }
-    public void OnSceneLoadDone(NetworkRunner runner) { }
-    public void OnSceneLoadStart(NetworkRunner runner) { }
 }
 
 enum GoldMinerButton

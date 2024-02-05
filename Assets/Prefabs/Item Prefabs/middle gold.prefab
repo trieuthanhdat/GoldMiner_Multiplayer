@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 8394868912291640778}
   - component: {fileID: 3783113458650112952}
   - component: {fileID: 7040460720652333658}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: middle gold
   m_TagString: MiddleGold
   m_Icon: {fileID: 0}
@@ -176,6 +176,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   itemScore: 20
+  spriteRenderer: {fileID: 5445351164770780664}
 --- !u!114 &7040460720652333658
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: -2967113893069809965}
   - component: {fileID: -7963399540146580641}
   - component: {fileID: -3086731495304111738}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: diamond 2
   m_TagString: LargeGold
   m_Icon: {fileID: 0}
@@ -186,6 +186,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
   itemScore: 20
+  spriteRenderer: {fileID: 7211805512568777332}
 --- !u!114 &-3086731495304111738
 MonoBehaviour:
   m_ObjectHideFlags: 0

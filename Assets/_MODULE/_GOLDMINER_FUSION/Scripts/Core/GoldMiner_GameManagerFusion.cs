@@ -4,6 +4,7 @@ using Fusion;
 using UnityEngine.UI;
 using System;
 using Cysharp.Threading.Tasks;
+using TMPro;
 
 public class GoldMiner_GameManagerFusion : NetworkBehaviour
 {
@@ -34,26 +35,31 @@ public class GoldMiner_GameManagerFusion : NetworkBehaviour
     [SerializeField] private float _endDelay = 4.0f;
     [SerializeField] private float _gameSessionLength = 120.0f;
     #region _____ REFERENCES _____
-    [Header("REFERENCES")]
+    [Header("UGUI HANDLER")]
     [SerializeField] private GUIMatching GUIMatching = null;
+    [SerializeField] private GUIMain     GUIMain     = null;
+    [SerializeField] private LevelBoundaries levelBoundaries = null;
     #endregion
     //===== UIs =====//
     #region _____ GAME COMMON UI _____
     [Header("GAME COMMON UI")]
-    [SerializeField] private Text countdownText;
-    [SerializeField] private Text scoreText;
+    [SerializeField] private TextMeshProUGUI countdownText;
+    [SerializeField] private TextMeshProUGUI scoreText;
     [SerializeField] private Image scoreFillUI;
     #endregion
 
     #region _____ NetWork _____
-    [Networked] private TickTimer _timer { get; set; }
+    [Networked] protected TickTimer _timer { get; set; }
     [Networked] private GameState _gameState { get; set; }
     [Networked] private GoldMiner_PlayerNetworked _winner { get; set; }
     #endregion
+    public LevelBoundaries LevelBoundaries { get => levelBoundaries; set => levelBoundaries = value; }
     public bool IsServer => Runner.IsSharedModeMasterClient || Runner.IsServer;
+    public float GameSessionTime => _timer.RemainingTime(Runner).GetValueOrDefault();
     public GameState State { get => _gameState; set => _gameState = value; }
     private PlayerAnimation playerAnim;
     private int scoreCount { get; set; } = 0;
+
     public override void Spawned()
     {
         base.Spawned();
@@ -71,33 +77,15 @@ public class GoldMiner_GameManagerFusion : NetworkBehaviour
         GUIMatching?.SetActive(FusionLauncher.Session.StateSyned == SessionState.MATCHING);
     }
 
-    private void OnMatchStarted()
-    {
-        GUIMatching?.SetActive(false);
-        _gameState = GameState.Running;
-
-        if (IsServer)
-        {
-            float timeBattle = UserData.Local != null ? UserData.Local.TimeBattle : GameConfigs.Default.GameTime;
-            float timer = timeBattle + (Constant.MILISECOND_DELAY_SEEK_START * 1.0f / 1000f);
-            _timer = TickTimer.CreateFromSeconds(Runner, timer);
-        }
-    }
+    
 
     private void EndGame()
     {
         if (_winner != null)
             return;
 
-        int maxScore = -1;
-        /* foreach (var player in _players.Values)
-         {
-             if (player.Score >= maxScore)
-             {
-                 _winner = player;
-                 maxScore = player.Score;
-             }
-         }*/
+        //Update winner score here
+
         _timer = TickTimer.CreateFromSeconds(Runner, _endDelay);
         _gameState = GameState.Ending;
     }
@@ -110,45 +98,69 @@ public class GoldMiner_GameManagerFusion : NetworkBehaviour
         scoreCount = 0;
         DisplayScore();
     }
+    private void OnMatchStarted()
+    {
+        GUIMatching?.SetActive(false);
 
+        if (GUIMain != null)
+        {
+            UniTask.Create(async () =>
+            {
+                await UniTask.Delay(1000);
+            });
+
+            GUIMain.OnMatchPrepareAsync(false).Forget();
+        }
+        OnStartCountdown();
+    }
+    #region _____ TIMER _____
     public void OnStartCountdown()
     {
         if (!Object.HasStateAuthority)
             return;
 
         Runner.SessionInfo.IsOpen = false;
-
         _gameState = GameState.Starting;
-        _timer = TickTimer.CreateFromSeconds(Runner, _startDelay);
+        float timer = _startDelay + ((Constant.MILISECOND_DELAY_SEEK_START -100) * 1.0f / 1000f);
+        _timer = TickTimer.CreateFromSeconds(Runner, timer);
+
     }
+
+    public void NetworkUpdate(float deltatime)
+    {
+        if (FusionLauncher.Session != null)
+        {
+            SetTimer(GameSessionTime);
+        }
+    }
+    public void SetTimer(float tickTimer)
+    {
+        this.countdownText?.SetText(string.Format("{0:00}:{1:00}", (int)(tickTimer / 60f), ((int)tickTimer % 60)));
+    }
+    private void Update()
+    {
+        NetworkUpdate(Time.deltaTime);
+    }
+    
     public override void FixedUpdateNetwork()
     {
-        // Update the game display with the information relevant to the current game state
         switch (_gameState)
         {
             case GameState.Waiting:
                 int count = 0;
                 foreach (PlayerRef _ in Runner.ActivePlayers)
                     count++;
-                /*UI?.SetWaitingPlayers(count, HasStateAuthority);*/
                 break;
             case GameState.Starting:
-                /* UI?.SetCountdownTimer(_timer.RemainingTime(Runner));*/
-
                 if (Object.HasStateAuthority && _timer.Expired(Runner))
                 {
-                    /*foreach (var player in Runner.ActivePlayers)
-                        SpawnSpaceship(player);*/
                     _gameState = GameState.Running;
                     _timer = TickTimer.CreateFromSeconds(Runner, _gameSessionLength);
-
-                    // Make sure we have an initial snapshot for host migration - otherwise
-                    // the first X seconds will return to the StartGame screen again because no players have been spawned
-                    Runner.PushHostMigrationSnapshot();
                 }
                 break;
             case GameState.Running:
                 /*UI?.SetGameTimer(_timer.RemainingTime(Runner));*/
+                Debug.Log($"{nameof(GoldMiner_GameManagerFusion).ToUpper()}: Game state Running");
                 if (_timer.Expired(Runner))
                 {
                     EndGame();
@@ -158,12 +170,13 @@ public class GoldMiner_GameManagerFusion : NetworkBehaviour
                 /*UI?.SetWinner(_winner, _timer.RemainingTime(Runner));*/
 
                 if (_timer.Expired(Runner))
-                    Runner.Shutdown();
+                    FusionLauncher.Session.EndMatchAsync().Forget();
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
     }
+    #endregion
     #region _____ BUTTON'S EVENT _____
     public void OnClick_StartGame()
     {
