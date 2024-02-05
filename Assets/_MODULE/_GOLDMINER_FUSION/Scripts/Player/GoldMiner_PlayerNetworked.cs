@@ -12,6 +12,9 @@ public class GoldMiner_PlayerNetworked : PlayerNetworked
 {
     [SerializeField] GoldMiner_PlayerGUI _playerGUI;
     [SerializeField] HookMovement _hookMovement;
+    [SerializeField] HookScripts  hookPrefab;
+    [SerializeField] Transform hookParent;
+    [SerializeField] Vector3   hookPosition;
     public HookMovement HookMovement { get { return _hookMovement; } }
     //=== PlayerPf Color ===//
     #region _____PlayerPf Color_____
@@ -50,8 +53,27 @@ public class GoldMiner_PlayerNetworked : PlayerNetworked
         GoldMiner_NetworkItem.OnItemCollected += GoldMiner_NetworkItem_OnItemCollected;
         if (ColorIndex == 0) ColorIndex = (byte)(Object.InputAuthority + 1);
         if (_playerGUI) _playerGUI.SetUpPlayer(this);
-
+        /*SpawnHook();*/
     }
+
+    private void SpawnHook()
+    {
+        Runner.Spawn(hookPrefab, hookPosition, Quaternion.identity, Runner.LocalPlayer,
+        ((runner, obj) =>
+        {
+            var hookObj = obj.GetComponent<HookScripts>();
+            if (hookObj != null)
+            {
+                hookObj.OnBeforeSpawned(()=>
+                {
+                    if (hookParent) hookObj.transform.SetParent(hookParent);
+                    hookObj.transform.position   = hookPrefab.transform.position;
+                    hookObj.transform.localScale = hookPrefab.transform.localScale;
+                });
+            }
+        }));
+    }
+
     public override void Despawned(NetworkRunner runner, bool hasState)
     {
         base.Despawned(runner, hasState);
@@ -87,7 +109,6 @@ public class GoldMiner_PlayerNetworked : PlayerNetworked
     {
         await UniTask.WaitUntil(() => _gameManagerFusion.State == GoldMiner_GameManagerFusion.GameState.Running);
         this.StateSynced = StateOfPlayer.Playing;
-
     }
 
     public void InitScore()

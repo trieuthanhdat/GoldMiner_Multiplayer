@@ -192,7 +192,7 @@ public class GoldMiner_GameManagerFusion : NetworkBehaviour
     }
     public void AddToScore(int score)
     {
-        scoreCount += score;
+        scoreCount = score;
         Debug.Log($"{nameof(GoldMiner_GameManagerFusion)}: new score "+ scoreCount);
     }
     public void DisplayScore()

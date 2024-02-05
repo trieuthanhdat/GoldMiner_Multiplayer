@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33cc315dfe148e34eb136f0d9aff1b14, type: 3}
   m_Name: Level1
   m_EditorClassIdentifier: 
-  gridSizeX: 14
+  gridSizeX: 13
   gridSizeY: 4
-  cellSize: 1.06
+  cellSize: 1.33
   goldDensity: 40
   diamondDensity: 10
   rockDensity: 50

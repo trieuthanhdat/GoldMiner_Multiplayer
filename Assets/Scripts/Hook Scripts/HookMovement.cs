@@ -24,6 +24,8 @@ public class HookMovement : NetworkBehaviour
     private float initial_Move_Speed;
     private float initial_Y;
     private bool moveDown;
+    public  bool MoveDown  { get => moveDown; }
+    public  bool CanRotate { get => canRotate; }
     #endregion
     public override void Spawned()
     {
@@ -72,7 +74,7 @@ public class HookMovement : NetworkBehaviour
     } // get input
     void MoveRope()
     {
-        if (canRotate)return;
+        if (canRotate) return;
         SoundManager.instance.RopeStretch(true);
         Vector3 temp = transform.position;
         Debug.Log("MOVING HOOK");

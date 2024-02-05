@@ -11,7 +11,17 @@ public class ItemInfo
         Diamond,
         Rock
     }
-
+    public enum ItemDetailType
+    {
+        Gold_small,
+        Gold_medium,
+        Gold_large,
+        Diamond_one,
+        Diamond_two,
+        Rock_small,
+        Rock_medium,
+        Rock_large,
+    }
     public ItemType itemType;
     public string itemName;
 

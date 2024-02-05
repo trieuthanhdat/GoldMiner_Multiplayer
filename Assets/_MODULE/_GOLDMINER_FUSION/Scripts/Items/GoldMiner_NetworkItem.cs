@@ -4,25 +4,75 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Pool;
-using UnityEngine.SocialPlatforms.Impl;
+using static ItemInfo;
 
 public class GoldMiner_NetworkItem : NetworkBehaviour, ISparseVisual<ItemState, GoldMiner_NetworkItem>
 {
+    #region _____ SERIALIZED FIELDS _____
+    [SerializeField] ItemDetailType itemType;
     [SerializeField] int itemScore = 20;
     [SerializeField] SpriteRenderer spriteRenderer;
+    [Space(50)]
+    [Header("NETWORK SYNC")]
+    [SerializeField] ItemSpriteConfig itemSpriteConfig;
+    #endregion  
+
     #region _____ GROUP ITEM'S ATTRIBUTES _____
     public SpriteRenderer SpriteRenderer { get => spriteRenderer; }
-    private int    _currentItemScore = 20;
-    private Sprite _currentItemSprite;
-    public  int   CurrentItemScore  { get => _currentItemScore;  set => _currentItemScore = value ; }
-    public Sprite CurrentItemSprite { get => _currentItemSprite; set => _currentItemSprite = value; }
-    #endregion
-    public static event Action<int> OnItemCollected;
-
-    private bool _hasSetup = false;
+    public ItemDetailType ItemType { get => itemType; }
+    public int ItemScore { get => itemScore; }
     private float _moveSpeed = 3;
+    #endregion
 
+    #region _____ NETWORKED _____
+    [Networked(OnChanged = nameof(OnScoreChange))]
+    public int ItemScoreSync { get; set; }
+    [Networked(OnChanged = nameof(OnSpriteChange))]
+    public int CurrentItemIndexSync { get; set; }
+    [Networked(OnChanged = nameof(OnStatusChange))]
+    public NetworkBool ActiveStatusSync { get; set; }
+    [Networked(OnChanged = nameof(OnPositionChange))]
+    public Vector3 PositionSync { get; set; }
+    #endregion
+
+    //EVENTS
+    public static event Action<int> OnItemCollected;
+    public static void OnPositionChange(Changed<GoldMiner_NetworkItem> changeInfo)
+    {
+        changeInfo.Behaviour.transform.position = changeInfo.Behaviour.PositionSync;
+        Debug.Log($"GOLDMINER_NETWORKITEM: on position synce => position {changeInfo.Behaviour.transform.position}");
+    }
+    public static void OnStatusChange(Changed<GoldMiner_NetworkItem> changeInfo)
+    {
+        changeInfo.Behaviour.ActiveStatusSync = changeInfo.Behaviour.gameObject.activeInHierarchy;
+        Debug.Log($"GOLDMINER_NETWORKITEM: on status synce => is enable {changeInfo.Behaviour.gameObject.activeInHierarchy}");
+    }
+    public static void OnSpriteChange(Changed<GoldMiner_NetworkItem> changeInfo)
+    {
+        changeInfo.Behaviour.HandleItemSpriteSync(changeInfo.Behaviour);
+        Debug.Log("GOLDMINER_NETWORKITEM: On Sprite synce => new sprite " + changeInfo.Behaviour.SpriteRenderer.sprite.name);
+    }
+
+    public static void OnScoreChange(Changed<GoldMiner_NetworkItem> changeInfo)
+    {
+        changeInfo.Behaviour.itemScore = changeInfo.Behaviour.ItemScoreSync;
+        Debug.Log($"GOLDMINER_NETWORKITEM: on score synce => new score {changeInfo.Behaviour.itemScore}");
+    }
+    public void HandleItemSpriteSync(GoldMiner_NetworkItem changeInfo)
+    {
+        int index = GetSpriteIndexFromConfig(changeInfo.CurrentItemIndexSync);
+        spriteRenderer.sprite = itemSpriteConfig.listItemSprite[index].itemSprite;
+    }
+    public int GetSpriteIndexFromConfig(int type)
+    {
+        //If null => return first sprite
+        if (itemSpriteConfig == null) return 0;
+        foreach(var i in itemSpriteConfig.listItemSprite)
+        {
+            if (i.itemType == (ItemDetailType)type) return itemSpriteConfig.listItemSprite.IndexOf(i);
+        }
+        return 0;
+    }
     //CONSTRUCTOR
     public GoldMiner_NetworkItem(SpriteRenderer spriteRenderer, int score)
     {
@@ -34,34 +84,52 @@ public class GoldMiner_NetworkItem : NetworkBehaviour, ISparseVisual<ItemState, 
         get => _moveSpeed;
         set => _moveSpeed = value;
     }
+    public void UpdatePositionOverNetwork(Vector3 newPos)
+    {
+        this.PositionSync = newPos;
+    }
     public override void Spawned()
     {
+        if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
+        this.ItemScoreSync = itemScore;
+        this.CurrentItemIndexSync = (int)itemType;
         base.Spawned();
-        if(spriteRenderer) _currentItemSprite = spriteRenderer.sprite;
-        _currentItemScore = itemScore;
-        _hasSetup = true;
+        ActiveStatusSync = true;
+        PositionSync = transform.position;
+        Debug.Log($"GOLEMINER_NETWORKITEM: on spawned {name} isActive {gameObject.activeInHierarchy}");
     }
-    public void ApplyNewAttributes(Sprite newSprite, int newScore)
+    public override void Despawned(NetworkRunner runner, bool hasState)
     {
-        _currentItemSprite = newSprite;
-        if(spriteRenderer) spriteRenderer.sprite = _currentItemSprite;
-        _currentItemScore = newScore;
+        base.Despawned(runner, hasState);
+        ActiveStatusSync = false;
     }
+    
+    public void ApplyNewAttributes(ItemDetailType newType, int newScore, bool copyScale = false, GameObject source = null)
+    {
+        itemScore = newScore;
+        this.ItemScoreSync = newScore;
+        if (copyScale && source)
+        {
+            transform.localScale = source.transform.localScale;
+        }
+        if (spriteRenderer == null)
+        {
+            spriteRenderer = GetComponent<SpriteRenderer>();
+        }
+        this.CurrentItemIndexSync = (int)newType;
+        Debug.Log("GOLDMINER_NETWORKITEM: new score "+ itemScore + " new Sprite " + spriteRenderer.sprite);
+    }
+    
     public void OnPickUp(HookMovement hookMovement)
     {
         if (hookMovement) Speed = hookMovement.MoveSpeed;
     }
     public void OnCollected()
     {
-        if (!_hasSetup) return;
-        OnItemCollected?.Invoke(itemScore);
+        OnItemCollected?.Invoke(ItemScore);
         Debug.Log($"{nameof(GoldMiner_NetworkItem).ToUpper()}: on item collected: {name} - {itemScore}");
     }
-    private void OnDisable()
-    {
-        OnCollected();
-    }
-
+   
     public void ApplyStateToVisual(NetworkBehaviour owner, ItemState state, float t, bool isFirstRender, bool isLastRender)
     {
         transform.rotation = Quaternion.Euler(0, 0, (float)state.Direction);

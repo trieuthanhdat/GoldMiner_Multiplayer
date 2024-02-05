@@ -56,7 +56,8 @@ namespace FusionHelpers
 			public P visual;
 			public T cache;
 			public bool disable;
-		}
+            public P prefabReference;
+        }
 
 		// To give proxies a chance to disable the local GO before it's re-used, we wait a few additional ticks before re-using a state.
 		private const int REUSE_DELAY_TICKS = 12;
@@ -82,12 +83,22 @@ namespace FusionHelpers
 			_states = states;
 			_prefab = prefab;
 		}
+        public P GetPrefab(int index)
+        {
+            if (index >= 0 && index < _entries.Length)
+            {
+                Entry entry = _entries[index];
+                return entry.prefabReference;
+            }
 
-		/// <summary>
-		/// Call Render() every frame to update visuals to their associated sparse state.
-		/// </summary>
-		/// <param name="owner">The NB that contains the networked state objects</param>
-		public void Render(NetworkBehaviour owner)
+            return null;
+        }
+
+        /// <summary>
+        /// Call Render() every frame to update visuals to their associated sparse state.
+        /// </summary>
+        /// <param name="owner">The NB that contains the networked state objects</param>
+        public void Render(NetworkBehaviour owner)
 		{
 			NetworkRunner runner = owner.Runner;
 
@@ -139,24 +150,26 @@ namespace FusionHelpers
 					bool isLastRender = t > (state.EndTick - state.StartTick) * runner.DeltaTime;
 					bool isSpawned = t >= 0 ;
 					bool isFirstRender = false;
- 
-					// Make sure we have a valid enabled GameObject if this state represents an active instance
-					if (isSpawned && !isLastRender) 
-					{
-						if (!e.visual) 
-						{
-							e.visual = Object.Instantiate(_prefab);
-							isFirstRender = true;
-						}
-						if (!e.visual.gameObject.activeSelf) 
-						{
-							e.visual.gameObject.SetActive(true);
-							isFirstRender = true; 
-						}
-					}
 
-					// Update the GameObject to current state
-					if(e.visual && e.visual.gameObject.activeSelf) 
+                    // Make sure we have a valid enabled GameObject if this state represents an active instance
+                    if (isSpawned && !isLastRender)
+                    {
+                        if (!e.visual)
+                        {
+                            e.visual = Object.Instantiate(_prefab);
+                            e.prefabReference = e.visual; // Store the prefab reference
+                            isFirstRender = true;
+                        }
+                        if (!e.visual.gameObject.activeSelf)
+                        {
+                            e.visual.gameObject.SetActive(true);
+                            isFirstRender = true;
+                        }
+                    }
+
+
+                    // Update the GameObject to current state
+                    if (e.visual && e.visual.gameObject.activeSelf) 
 					{
 						// Update state to t
 						state.Extrapolate(t, _prefab);
@@ -176,8 +189,21 @@ namespace FusionHelpers
 
 			_lastRenderTime = renderTime;
 		}
+        public void RemovePrefab(int index)
+        {
+            if (index >= 0 && index < _entries.Length)
+            {
+                Entry entry = _entries[index];
+                if (entry.visual != null)
+                {
+                    Object.Destroy(entry.visual.gameObject);
+                    entry.visual = null;
+                    entry.prefabReference = null; // Clear the prefab reference
+                }
+            }
+        }
 
-    public delegate bool Processor(ref T state, int tick);
+        public delegate bool Processor(ref T state, int tick);
 
 		/// <summary>
 		/// Call process every tick if you want to adjust *networked* properties on the sparse state.
@@ -210,15 +236,42 @@ namespace FusionHelpers
 				}
 			}
 		}
+        public void ProcessWithCallback(NetworkBehaviour owner, Processor process, System.Action callback)
+        {
+            if (owner.IsProxy)
+                return;
 
-		/// <summary>
-		/// Call Add to "instantiate" (or rather, "activate") a new sparse state. Note that this will not allocate
-		/// but simply select the next in-active sparse state in the array. It will do nothing if none is found.
-		/// </summary>
-		/// <param name="runner"></param>
-		/// <param name="state">The initial state to add</param>
-		/// <param name="secondsToLive">Initial number of ticks for the sparse state to be alive</param>
-		public void Add(NetworkRunner runner, T state, float secondsToLive)
+            NetworkRunner runner = owner.Runner;
+            for (int i = 0; i < _states.Length; i++)
+            {
+                T state = _states[i];
+                int simtick = runner.Tick;
+                float t = (simtick - state.StartTick) * runner.DeltaTime;
+                if (simtick <= state.EndTick)
+                {
+                    state.Extrapolate(t, _prefab);
+                    if (process(ref state, simtick))
+                    {
+                        // Since we're storing the extrapolated state, we must also update the start tick, as this is our new starting point going forward.
+                        state.StartTick = simtick;
+                        // Update the networked backing storage so the change is propagated
+                        _states[i] = state;
+                    }
+                }else
+				{
+					callback?.Invoke();
+					callback = null;
+                }
+            }
+        }
+        /// <summary>
+        /// Call Add to "instantiate" (or rather, "activate") a new sparse state. Note that this will not allocate
+        /// but simply select the next in-active sparse state in the array. It will do nothing if none is found.
+        /// </summary>
+        /// <param name="runner"></param>
+        /// <param name="state">The initial state to add</param>
+        /// <param name="secondsToLive">Initial number of ticks for the sparse state to be alive</param>
+        public void Add(NetworkRunner runner, T state, float secondsToLive)
 		{
 			state.StartTick = runner.Tick;
 			state.EndTick = state.StartTick + Mathf.Max(1,(int)(secondsToLive / runner.DeltaTime));
@@ -246,6 +299,10 @@ namespace FusionHelpers
 					Object.Destroy(e.visual.gameObject);
 				_entries[i] = default;
 			}
+		}
+		public int Count()
+		{
+			return _states.Length;
 		}
 	}
 }
