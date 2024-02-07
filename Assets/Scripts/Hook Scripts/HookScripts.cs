@@ -1,11 +1,8 @@
 ﻿using Fusion;
 using FusionHelpers;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Net;
 using UnityEngine;
-using UnityEngine.UIElements;
 using static ItemInfo;
 
 public class HookScripts : NetworkBehaviour
@@ -20,6 +17,8 @@ public class HookScripts : NetworkBehaviour
     [SerializeField] private LayerMask             collisionMask;
     #endregion
     public bool IsMine => Object.HasStateAuthority || Object.HasInputAuthority;
+    public bool IsMasterClient => Runner.IsSharedModeMasterClient;
+
     [Networked, Capacity(50)] private NetworkArray<ItemState> _itemStates => default;
 
     private List<LagCompensatedHit> _lagCompensatedHits = new List<LagCompensatedHit>();
@@ -31,6 +30,7 @@ public class HookScripts : NetworkBehaviour
     private bool _hasCollectedItem;
     private Action spawnCallback;
     private GoldMiner_NetworkItem _currentOrigin;
+    private GoldMiner_PlayerNetworked _playerReference;
 
     public override void Spawned()
     {
@@ -43,18 +43,15 @@ public class HookScripts : NetworkBehaviour
 
         _items = new SparseCollection<ItemState, GoldMiner_NetworkItem>(_itemStates, originItem);
         _hookStartPosition = hookTransform.position;
-        GoldMiner_NetworkItem.OnItemPickup += GoldMiner_NetworkItem_OnItemPickup;
 #if UNITY_EDITOR
         name += GetInstanceID();
 #endif
+        if(_playerReference == null)
+            _playerReference = GetComponentInParent<GoldMiner_PlayerNetworked>();
         spawnCallback?.Invoke();
         Debug.Log("HOOK SCRIPTS: on hook spawned");
     }
 
-    private void GoldMiner_NetworkItem_OnItemPickup(Transform transform)
-    {
-        transform.SetParent(itemHolder);
-    }
 
     public void OnBeforeSpawned(Action spawnCallback)
     {
@@ -181,10 +178,11 @@ public class HookScripts : NetworkBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision == null) return;
-        if(collision.TryGetComponent<GoldMiner_NetworkItem>(out GoldMiner_NetworkItem targ))
+        if (collision.TryGetComponent<GoldMiner_NetworkItem>(out GoldMiner_NetworkItem targ))
         {
             HandleCollectITem(targ);
-        }else if(collision.TryGetComponent<GoldMiner_DeliverItem>(out GoldMiner_DeliverItem del))
+        }
+        else if (collision.TryGetComponent<GoldMiner_DeliverItem>(out GoldMiner_DeliverItem del))
         {
             HandleDeliveryItem(del);
         }
@@ -194,19 +192,16 @@ public class HookScripts : NetworkBehaviour
         if (itemAttached) return;
         _items.Clear();
         
-        Debug.LogError($"HOOK SCRIPT: collecting item {target.name} => " +
-                        $"new Origin {originItem.name} " +
-                        $"Score {originItem.ItemScore}, sprite {originItem.SpriteRenderer.sprite}");
         
         float timeDelayOffset = 1f;
         float distance = Vector3.Distance(target.transform.position, _hookStartPosition);
-        float timeToMove = CalculateTimeToMove(distance, originItem.Speed) + timeDelayOffset;
+        float timeToMove = CalculateTimeToMove(distance, target.Speed) + timeDelayOffset;
 
-        ItemState itemState = new ItemState(target.transform.position, (_hookStartPosition - target.transform.position).normalized);
-        _items.Add(Runner, itemState, timeToMove);
+         _currentOrigin = target;
+        //ItemState itemState = new ItemState(target.transform.position, (_hookStartPosition - target.transform.position).normalized);
+        //_items.Add(Runner, itemState, timeToMove);
 
-        _currentOrigin = target;
-        _currentOrigin.OnPickUp(hookMovement);
+        _currentOrigin.OnPickUp(hookMovement, _playerReference.PlayerId);
         _currentOrigin.transform.SetParent(itemHolder);
 
         itemAttached = true;
@@ -264,8 +259,8 @@ public class HookScripts : NetworkBehaviour
     {
         ItemDetailType newType = source.ItemType;
         int    newScore  = source.ItemScore;
-        _currentOrigin.ApplyNewAttributes(newType, newScore, true, source.gameObject);
-        _currentOrigin.name = source.name;
+        originItem.ApplyNewAttributes(newType, newScore, true, source.gameObject);
+        originItem.name = source.name;
     }
 } 
 

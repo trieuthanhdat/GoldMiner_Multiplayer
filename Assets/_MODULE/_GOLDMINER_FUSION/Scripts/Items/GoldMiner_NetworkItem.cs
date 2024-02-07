@@ -35,15 +35,20 @@ public class GoldMiner_NetworkItem : NetworkBehaviour, ISparseVisual<ItemState, 
     public bool canPickupItemSync { get; set; }
     #endregion
     private bool _canPickupItem = false;
+    private uint _currentCollecorID;
+    public  bool IsMine => Object.HasInputAuthority;
+    private bool collected = false;
+
     //EVENTS
-    public static event Action<int>       OnItemCollected;
+    public static event Action<uint, int> OnItemCollected;
     public static event Action<Transform> OnItemPickup;
+
 
     public static void OnPickupItemSync(Changed<GoldMiner_NetworkItem> changeInfo)
     {
         changeInfo.Behaviour.RPC_HandlePickupItem(changeInfo.Behaviour.canPickupItemSync);
     }
-    [Rpc(sources: RpcSources.All, targets: RpcTargets.All)]
+    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.All, Channel = RpcChannel.Reliable, InvokeLocal = true)] 
     public void RPC_HandlePickupItem(bool canPickup, RpcInfo info = default)
     {
         _canPickupItem = canPickup;
@@ -129,14 +134,18 @@ public class GoldMiner_NetworkItem : NetworkBehaviour, ISparseVisual<ItemState, 
         Debug.Log("GOLDMINER_NETWORKITEM: new score "+ itemScore + " new Sprite " + spriteRenderer.sprite);
     }
     
-    public void OnPickUp(HookMovement hookMovement)
+    public void OnPickUp(HookMovement hookMovement, uint collector)
     {
         if (hookMovement) Speed = hookMovement.MoveSpeed;
+        GetComponent<NetworkTransform>().enabled = false;
+        _currentCollecorID = collector;
         _canPickupItem = true;
     }
     public void OnCollected()
     {
-        OnItemCollected?.Invoke(ItemScore);
+        if (collected) return;
+        collected = true;
+        OnItemCollected?.Invoke(_currentCollecorID, ItemScore);
         Debug.Log($"{nameof(GoldMiner_NetworkItem).ToUpper()}: on item collected: {name} - {itemScore}");
     }
    
@@ -149,21 +158,12 @@ public class GoldMiner_NetworkItem : NetworkBehaviour, ISparseVisual<ItemState, 
 
 public struct ItemState : ISparseState<GoldMiner_NetworkItem>
 {
-    /// <summary>
-    /// Required sparse state properties
-    /// </summary>
     public int StartTick { get; set; }
     public int EndTick { get; set; }
 
-    /// <summary>
-    /// Bullet specific sparse properties
-    /// </summary>
     public Vector2 Position;
     public Angle Direction;
 
-    /// <summary>
-    /// Extrapolated local values
-    /// </summary>
     public Vector2 Forward
     {
         get

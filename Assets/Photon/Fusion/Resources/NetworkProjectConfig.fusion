@@ -2,8 +2,8 @@
     "Version": 1,
     "TypeId": "NetworkProjectConfig",
     "PeerMode": 0,
-    "PhysicsEngine": 0,
-    "ServerPhysicsMode": 0,
+    "PhysicsEngine": 1,
+    "ServerPhysicsMode": 1,
     "UseLagCompensation": true,
     "LagCompensation": {
         "HitboxBufferSize": 12,

@@ -186,9 +186,9 @@ public class GoldMiner_GameManagerFusion : NetworkBehaviour
     #endregion
 
     #region _____ SCORE _____
-    public void HandleScoreChange(GoldMiner_PlayerNetworked info)
+    public void HandleScoreChange(int score)
     {
-        if(info.IsMine) AddToScore(info.Score);
+        AddToScore(score);
         DisplayScore();
     }
     public void AddToScore(int score)

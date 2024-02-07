@@ -43,10 +43,7 @@ public class MonoAudioManager : MonoSingleton<MonoAudioManager>
     [SerializeField] Sound[] sounds;
     bool isInited = false;
 
-    bool isGradient = false;
-    int gradientSoundIndex = -1;
-    float time = 0;
-    private void Awake()
+    private void Start()
     {
         foreach(Sound s in sounds)
         {

@@ -320,11 +320,11 @@ MonoBehaviour:
   playerAnim: {fileID: 0}
   hookMovement: {fileID: 0}
   hookTransform: {fileID: 3278927950063825133}
-  originItem: {fileID: -4472250164541940271, guid: dd7f3e10e8529ae44aa113a6efdbbd3c, type: 3}
+  originItem: {fileID: -4472250164541940271, guid: 3df03650d61f145729f7cd8597a82ff1, type: 3}
   hookHitBox: {fileID: 8448072052853815145}
   collisionMask:
     serializedVersion: 2
-    m_Bits: 8
+    m_Bits: 0
 --- !u!114 &8702859211432098655
 MonoBehaviour:
   m_ObjectHideFlags: 0
