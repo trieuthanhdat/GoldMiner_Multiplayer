@@ -515,7 +515,6 @@ namespace CoreGame
                 GoldMinerInput localInput = new GoldMinerInput();
                 localInput.Buttons.Set(GoldMinerButton.Fire, Input.GetButton(BUTTON_FIRE1));
 
-                Debug.Log($"{nameof(GoldMiner_PlayerNetworked).ToUpper()}: on input {localInput}");
                 input.Set(localInput);
                 return;
             }

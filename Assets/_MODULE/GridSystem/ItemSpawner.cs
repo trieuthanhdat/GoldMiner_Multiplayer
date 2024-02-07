@@ -114,6 +114,7 @@ public class ItemSpawner : NetworkBehaviour
             Debug.Log($"{nameof(ItemSpawner)}: start spawning item {chosenPrefab.name}");
             var item = Runner.Spawn(chosenPrefab, randomPosition, Quaternion.Euler(randomRotation));
             item.gameObject.SetActive(true);
+
             Debug.Log($"{nameof(ItemSpawner)}: spawned item {chosenPrefab.name}");
         }
         //OFFLINE

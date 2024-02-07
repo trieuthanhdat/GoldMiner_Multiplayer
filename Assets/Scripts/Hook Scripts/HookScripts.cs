@@ -42,16 +42,18 @@ public class HookScripts : NetworkBehaviour
         CheckHookMovementAndPlayerAnimation();
 
         _items = new SparseCollection<ItemState, GoldMiner_NetworkItem>(_itemStates, originItem);
-        PrepareOrigin();
         _hookStartPosition = hookTransform.position;
+        GoldMiner_NetworkItem.OnItemPickup += GoldMiner_NetworkItem_OnItemPickup;
+#if UNITY_EDITOR
+        name += GetInstanceID();
+#endif
         spawnCallback?.Invoke();
         Debug.Log("HOOK SCRIPTS: on hook spawned");
     }
 
-    private void PrepareOrigin()
+    private void GoldMiner_NetworkItem_OnItemPickup(Transform transform)
     {
-        _items.Add(Runner, new ItemState(new Vector2(-100, 100), Vector2.up), 5);
-        Render();
+        transform.SetParent(itemHolder);
     }
 
     public void OnBeforeSpawned(Action spawnCallback)
@@ -170,11 +172,7 @@ public class HookScripts : NetworkBehaviour
             if (itemAttached == false)
             {
                 item.EndTick = Runner.Tick;
-                _currentOrigin.OnCollected();
 
-                Runner.Despawn(_currentOrigin.Object);
-                _currentOrigin?.gameObject?.SetActive(false);
-                _currentOrigin = null;
                 return true;
             }
             return false;
@@ -209,10 +207,7 @@ public class HookScripts : NetworkBehaviour
 
         _currentOrigin = target;
         _currentOrigin.OnPickUp(hookMovement);
-
-
-        target.transform.SetParent(itemHolder);
-        _currentOrigin?.gameObject?.SetActive(true);
+        _currentOrigin.transform.SetParent(itemHolder);
 
         itemAttached = true;
         _hasCollectedItem = false;
@@ -246,6 +241,12 @@ public class HookScripts : NetworkBehaviour
         _hasCollectedItem = true;
         playerAnim.IdleAnimation();
         SoundManager.instance.PullSound(false);
+
+        //Deliver item
+        _currentOrigin.OnCollected();
+        Runner.Despawn(_currentOrigin.Object);
+        _currentOrigin?.gameObject?.SetActive(false);
+        _currentOrigin = null;
         Debug.Log("HOOK SCRIPT: Delivery new collected item");
     }
     float CalculateTimeToMove(float distance, float speed)

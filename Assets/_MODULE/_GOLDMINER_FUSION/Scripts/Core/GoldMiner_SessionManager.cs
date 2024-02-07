@@ -14,7 +14,7 @@ public class GoldMiner_SessionManager : SessionManager
     public override void Spawned()
     {
         base.Spawned();
-        Runner.Spawn(managerPf, Vector3.zero, Quaternion.identity);
+        //Runner.Spawn(managerPf, Vector3.zero, Quaternion.identity);
     }
 
 }
