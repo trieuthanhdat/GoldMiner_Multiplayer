@@ -13,9 +13,9 @@ GameObject:
   - component: {fileID: 2370939557751584059}
   - component: {fileID: -3353545671179478136}
   - component: {fileID: -4362976540057959060}
-  - component: {fileID: -2645684789394489827}
   - component: {fileID: 1702558634541023713}
   - component: {fileID: 2925715901081346613}
+  - component: {fileID: 4782986939606809974}
   m_Layer: 3
   m_Name: large stone
   m_TagString: LargeStone
@@ -110,8 +110,8 @@ MonoBehaviour:
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: -4362976540057959060}
-  - {fileID: -2645684789394489827}
   - {fileID: 1702558634541023713}
+  - {fileID: 4782986939606809974}
   SimulationBehaviours: []
 --- !u!114 &-4362976540057959060
 MonoBehaviour:
@@ -132,34 +132,9 @@ MonoBehaviour:
   itemSpriteConfig: {fileID: 11400000, guid: 591e7f0c79234194a97c137b77c38185, type: 2}
   _ItemScoreSync: 0
   _CurrentItemIndexSync: 0
---- !u!114 &-2645684789394489827
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2554021331248287760}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _interpolationDataSource: 0
-  InterpolationSpace: 0
-  InterpolationTarget: {fileID: 8027345548674823080}
-  InterpolateErrorCorrection: 1
-  InterpolatedErrorCorrectionSettings:
-    MinRate: 3.3
-    MaxRate: 10
-    PosBlendStart: 0.25
-    PosBlendEnd: 1
-    PosMinCorrection: 0.025
-    PosTeleportDistance: 2
-    RotBlendStart: 0.1
-    RotBlendEnd: 0.5
-    RotTeleportRadians: 1.5
-  UseLegacySharedModeInterpolation: 0
-  TargetInterpolationDelay: 0.03
+  _ActiveStatusSync:
+    _value: 0
+  _canPickupItemSync: 0
 --- !u!114 &1702558634541023713
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -197,6 +172,34 @@ MonoBehaviour:
   Offset: {x: 0, y: 0, z: 0}
   Root: {fileID: 1702558634541023713}
   GizmosColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+--- !u!114 &4782986939606809974
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2554021331248287760}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _interpolationDataSource: 2
+  InterpolationSpace: 0
+  InterpolationTarget: {fileID: 8027345548674823080}
+  InterpolateErrorCorrection: 1
+  InterpolatedErrorCorrectionSettings:
+    MinRate: 3.3
+    MaxRate: 10
+    PosBlendStart: 0.25
+    PosBlendEnd: 1
+    PosMinCorrection: 0.025
+    PosTeleportDistance: 2
+    RotBlendStart: 0.1
+    RotBlendEnd: 0.5
+    RotTeleportRadians: 1.5
+  UseLegacySharedModeInterpolation: 0
+  TargetInterpolationDelay: 0.03
 --- !u!1 &5185269960984121991
 GameObject:
   m_ObjectHideFlags: 0

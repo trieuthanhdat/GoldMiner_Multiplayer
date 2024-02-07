@@ -32,6 +32,8 @@ public class HookScripts : NetworkBehaviour
     private GoldMiner_NetworkItem _currentOrigin;
     private GoldMiner_PlayerNetworked _playerReference;
 
+    public GoldMiner_NetworkItem CurrentOrigin { get => _currentOrigin; set { _currentOrigin = value; } }
+
     public override void Spawned()
     {
         base.Spawned();
@@ -134,12 +136,12 @@ public class HookScripts : NetworkBehaviour
     private void DebugDrawSphere(Vector3 center, float radius, Color color)
     {
         // Draw the wire sphere for visualization purposes
-        Debug.DrawRay(center + Vector3.up * radius, Vector3.forward * radius, color);
-        Debug.DrawRay(center + Vector3.right * radius, Vector3.back * radius, color);
-        Debug.DrawRay(center + Vector3.down * radius, Vector3.right * radius, color);
-        Debug.DrawRay(center + Vector3.left * radius, Vector3.up * radius, color);
-        Debug.DrawRay(center + Vector3.forward * radius, Vector3.left * radius, color);
-        Debug.DrawRay(center + Vector3.back * radius, Vector3.down * radius, color);
+        Debug.DrawRay(center + Vector3.up      * radius, Vector3.forward * radius, color);
+        Debug.DrawRay(center + Vector3.right   * radius, Vector3.back    * radius, color);
+        Debug.DrawRay(center + Vector3.down    * radius, Vector3.right   * radius, color);
+        Debug.DrawRay(center + Vector3.left    * radius, Vector3.up      * radius, color);
+        Debug.DrawRay(center + Vector3.forward * radius, Vector3.left    * radius, color);
+        Debug.DrawRay(center + Vector3.back    * radius, Vector3.down    * radius, color);
     }
 
     private void CheckCollision()
@@ -165,11 +167,12 @@ public class HookScripts : NetworkBehaviour
         _items.Process(this, (ref ItemState item, int tick) =>
         {
             if (_currentOrigin == null) return false;
-            _currentOrigin.transform.position = item.Position;
+            _currentOrigin.transform.position = hookMovement.HookPosition;
             if (itemAttached == false)
             {
                 item.EndTick = Runner.Tick;
-
+                _currentOrigin?.gameObject?.SetActive(false);
+                _currentOrigin = null;
                 return true;
             }
             return false;
@@ -177,6 +180,7 @@ public class HookScripts : NetworkBehaviour
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        if (!IsMine) return;
         if (collision == null) return;
         if (collision.TryGetComponent<GoldMiner_NetworkItem>(out GoldMiner_NetworkItem targ))
         {
@@ -190,19 +194,28 @@ public class HookScripts : NetworkBehaviour
     void HandleCollectITem(GoldMiner_NetworkItem target)
     {
         if (itemAttached) return;
-        _items.Clear();
-        
-        
-        float timeDelayOffset = 1f;
-        float distance = Vector3.Distance(target.transform.position, _hookStartPosition);
-        float timeToMove = CalculateTimeToMove(distance, target.Speed) + timeDelayOffset;
 
-         _currentOrigin = target;
+        Rpc_HandleCollectItem(target);
+    }
+    [Rpc (RpcSources.All, RpcTargets.All)]
+    private void Rpc_HandleCollectItem(GoldMiner_NetworkItem target)
+    {
+        _currentOrigin = target;
+        //originItem = _currentOrigin;
+        //_items = new SparseCollection<ItemState, GoldMiner_NetworkItem>(_itemStates, originItem);
+
+        //float timeDelayOffset = 1f;
+        //float distance = Vector3.Distance(target.transform.position, _hookStartPosition);
+        //float timeToMove = CalculateTimeToMove(distance, hookMovement.MoveSpeed) + timeDelayOffset;
         //ItemState itemState = new ItemState(target.transform.position, (_hookStartPosition - target.transform.position).normalized);
         //_items.Add(Runner, itemState, timeToMove);
-
+        //target.gameObject.SetActive(false);
+        //var fakeItem = Runner.Spawn(originItem, target.transform.position, target.transform.rotation,Runner.LocalPlayer);
+        //CopyTarget(target, fakeItem);
+        _currentOrigin.transform.SetParent(_playerReference.GetComponentInChildren<HookScripts>().itemHolder);
         _currentOrigin.OnPickUp(hookMovement, _playerReference.PlayerId);
-        _currentOrigin.transform.SetParent(itemHolder);
+        //Runner.Despawn(target.Object);
+        //target?.gameObject?.SetActive(false);
 
         itemAttached = true;
         _hasCollectedItem = false;
@@ -216,21 +229,24 @@ public class HookScripts : NetworkBehaviour
         if (target.tag == Tags.SMALL_GOLD || target.tag == Tags.MIDDLE_GOLD ||
             target.tag == Tags.LARGE_GOLD)
         {
-
             SoundManager.instance.Gold();
         }
         else if (target.tag == Tags.MIDDLE_STONE || target.tag == Tags.LARGE_STONE)
         {
-
             SoundManager.instance.Stone();
         }
         SoundManager.instance.PullSound(true);
-
-        
     }
+
     private void HandleDeliveryItem(GoldMiner_DeliverItem delivery)
     {
         if (!itemAttached) return;
+        Rpc_HandleDeliverItem(this);
+    }
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    private void Rpc_HandleDeliverItem(HookScripts hook)
+    {
+        if (hook == null) return;
         itemAttached = false;
         _hasGetItem = false;
         _hasCollectedItem = true;
@@ -238,12 +254,11 @@ public class HookScripts : NetworkBehaviour
         SoundManager.instance.PullSound(false);
 
         //Deliver item
-        _currentOrigin.OnCollected();
-        Runner.Despawn(_currentOrigin.Object);
-        _currentOrigin?.gameObject?.SetActive(false);
-        _currentOrigin = null;
+        hook.CurrentOrigin.OnCollected();
+        hook.CurrentOrigin?.gameObject?.SetActive(false);
         Debug.Log("HOOK SCRIPT: Delivery new collected item");
     }
+
     float CalculateTimeToMove(float distance, float speed)
     {
         // Avoid division by zero
@@ -255,31 +270,11 @@ public class HookScripts : NetworkBehaviour
 
         return distance / speed;
     }
-    private void CopyTarget(GoldMiner_NetworkItem source)
+    private void CopyTarget(GoldMiner_NetworkItem source, GoldMiner_NetworkItem clone)
     {
         ItemDetailType newType = source.ItemType;
         int    newScore  = source.ItemScore;
-        originItem.ApplyNewAttributes(newType, newScore, true, source.gameObject);
-        originItem.name = source.name;
+        clone.ApplyNewAttributes(newType, newScore, true, source.gameObject);
+        clone.name = source.name;
     }
 } 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

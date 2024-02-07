@@ -107,12 +107,10 @@ public class GoldMiner_NetworkItem : NetworkBehaviour, ISparseVisual<ItemState, 
         base.Spawned();
         ActiveStatusSync = true;
         canPickupItemSync = _canPickupItem;
-        Debug.Log($"GOLEMINER_NETWORKITEM: on spawned {name} isActive {gameObject.activeInHierarchy}");
     }
     public override void Despawned(NetworkRunner runner, bool hasState)
     {
         base.Despawned(runner, hasState);
-        ActiveStatusSync = false;
     }
     public void UpdateItemPosition(Vector3 newPosition)
     {
@@ -121,7 +119,7 @@ public class GoldMiner_NetworkItem : NetworkBehaviour, ISparseVisual<ItemState, 
     public void ApplyNewAttributes(ItemDetailType newType, int newScore, bool copyScale = false, GameObject source = null)
     {
         itemScore = newScore;
-        this.ItemScoreSync = newScore;
+        //this.ItemScoreSync = newScore;
         if (copyScale && source)
         {
             transform.localScale = source.transform.localScale;
@@ -130,16 +128,19 @@ public class GoldMiner_NetworkItem : NetworkBehaviour, ISparseVisual<ItemState, 
         {
             spriteRenderer = GetComponent<SpriteRenderer>();
         }
+        collected = false;
         this.CurrentItemIndexSync = (int)newType;
-        Debug.Log("GOLDMINER_NETWORKITEM: new score "+ itemScore + " new Sprite " + spriteRenderer.sprite);
     }
     
     public void OnPickUp(HookMovement hookMovement, uint collector)
     {
+        //ActiveStatusSync = false;
         if (hookMovement) Speed = hookMovement.MoveSpeed;
         GetComponent<NetworkTransform>().enabled = false;
+
         _currentCollecorID = collector;
         _canPickupItem = true;
+
     }
     public void OnCollected()
     {

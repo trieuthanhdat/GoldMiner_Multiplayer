@@ -1,3 +1,4 @@
+using System;
 using Fusion;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -101,93 +102,99 @@ namespace FusionHelpers
         public void Render(NetworkBehaviour owner)
 		{
 			NetworkRunner runner = owner.Runner;
-
-			// Pick the relevant timeframe - input authority is predicted, others are interpolated (for state auth, those are the same, so doesn't matter)
-			float renderTime = owner.HasInputAuthority ? runner.SimulationRenderTime : runner.InterpolationRenderTime;
-
-			// In the event that tick-rate is higher than framerate, there's a risk that we will completely miss single-tick effects like eg. a hit-scan projectile. 
-			// To fix this, we "Render" all ticks between last render time and current render time (mostly this is just one render)
-			if (_lastRenderTime == 0)
-				_lastRenderTime = renderTime;
-			
-			// As long as framerate is higher than tickrate, renderTime will be the smaller value and we'll only do one iteration.
-			float t0 = Mathf.Min( renderTime, _lastRenderTime + runner.DeltaTime);
-
-			do 
+			try
 			{
-				for (int i = 0; i < _entries.Length; i++)
+				float renderTime = owner.HasInputAuthority ? runner.SimulationRenderTime : runner.InterpolationRenderTime;
+
+				// In the event that tick-rate is higher than framerate, there's a risk that we will completely miss single-tick effects like eg. a hit-scan projectile. 
+				// To fix this, we "Render" all ticks between last render time and current render time (mostly this is just one render)
+				if (_lastRenderTime == 0)
+					_lastRenderTime = renderTime;
+
+				// As long as framerate is higher than tickrate, renderTime will be the smaller value and we'll only do one iteration.
+				float t0 = Mathf.Min(renderTime, _lastRenderTime + runner.DeltaTime);
+
+				do
 				{
-					Entry e = _entries[i];
-					T state = _states[i];
-
-					if (e.disable)
+					for (int i = 0; i < _entries.Length; i++)
 					{
-						e.visual.gameObject.SetActive(false);
-						e.disable = false;
-					}
-					float t = t0;
+						Entry e = _entries[i];
+						T state = _states[i];
 
-					if (e.cache.StartTick != state.StartTick)
-					{
-						if(t>e.cache.EndTick*runner.DeltaTime)
+						if (e.disable)
+						{
+							e.visual.gameObject.SetActive(false);
+							e.disable = false;
+						}
+						float t = t0;
+
+						if (e.cache.StartTick != state.StartTick)
+						{
+							if (t > e.cache.EndTick * runner.DeltaTime)
+								e.cache = state;
+						}
+
+						if (t < state.StartTick * runner.DeltaTime)
+							state = e.cache;
+						else
 							e.cache = state;
+
+						if (state.StartTick == 0)
+						{
+							if (e.visual)
+								e.visual.gameObject.SetActive(false); // This is needed to disable initial mis-predicted instances
+							continue;
+						}
+
+						t -= state.StartTick * runner.DeltaTime;
+
+						bool isLastRender = t > (state.EndTick - state.StartTick) * runner.DeltaTime;
+						bool isSpawned = t >= 0;
+						bool isFirstRender = false;
+
+						// Make sure we have a valid enabled GameObject if this state represents an active instance
+						if (isSpawned && !isLastRender)
+						{
+							if (!e.visual)
+							{
+								e.visual = Object.Instantiate(_prefab);
+								e.prefabReference = e.visual; // Store the prefab reference
+								isFirstRender = true;
+							}
+							if (!e.visual.gameObject.activeSelf)
+							{
+								e.visual.gameObject.SetActive(true);
+								isFirstRender = true;
+							}
+						}
+
+
+						// Update the GameObject to current state
+						if (e.visual && e.visual.gameObject.activeSelf)
+						{
+							// Update state to t
+							state.Extrapolate(t, _prefab);
+							// Update visual to match the state
+							e.visual.ApplyStateToVisual(owner, state, t, isFirstRender, isLastRender);
+
+							// Disable the GameObject if this was its last render update
+							// We delay disabling of the object one frame since "last render" isn't really a last render if the object is immediately hidden.
+							if (isLastRender)
+								e.disable = true;
+						}
+
+						_entries[i] = e;
 					}
+					t0 += runner.DeltaTime;
+				} while (t0 < renderTime);
 
-					if (t < state.StartTick*runner.DeltaTime)
-						state = e.cache;
-					else
-						e.cache = state;
-						
-					if (state.StartTick == 0)
-					{
-						if(e.visual)
-							e.visual.gameObject.SetActive(false); // This is needed to disable initial mis-predicted instances
-						continue;
-					}
-					
-					t -= state.StartTick * runner.DeltaTime;
-
-					bool isLastRender = t > (state.EndTick - state.StartTick) * runner.DeltaTime;
-					bool isSpawned = t >= 0 ;
-					bool isFirstRender = false;
-
-                    // Make sure we have a valid enabled GameObject if this state represents an active instance
-                    if (isSpawned && !isLastRender)
-                    {
-                        if (!e.visual)
-                        {
-                            e.visual = Object.Instantiate(_prefab);
-                            e.prefabReference = e.visual; // Store the prefab reference
-                            isFirstRender = true;
-                        }
-                        if (!e.visual.gameObject.activeSelf)
-                        {
-                            e.visual.gameObject.SetActive(true);
-                            isFirstRender = true;
-                        }
-                    }
-
-
-                    // Update the GameObject to current state
-                    if (e.visual && e.visual.gameObject.activeSelf) 
-					{
-						// Update state to t
-						state.Extrapolate(t, _prefab);
-						// Update visual to match the state
-						e.visual.ApplyStateToVisual(owner, state, t, isFirstRender, isLastRender);
-
-						// Disable the GameObject if this was its last render update
-						// We delay disabling of the object one frame since "last render" isn't really a last render if the object is immediately hidden.
-						if (isLastRender)
-							e.disable = true; 
-					}
-
-					_entries[i] = e;
-				}
-				t0 += runner.DeltaTime;
-			} while (	t0<renderTime);
-
-			_lastRenderTime = renderTime;
+				_lastRenderTime = renderTime;
+			}
+			catch (Exception ex)
+			{
+				Debug.Log("SPARE COLLECTION: exception +"+ex);
+			}
+			// Pick the relevant timeframe - input authority is predicted, others are interpolated (for state auth, those are the same, so doesn't matter)
 		}
         public void RemovePrefab(int index)
         {

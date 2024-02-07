@@ -1213,6 +1213,10 @@ PrefabInstance:
       value: Hook1
       objectReference: {fileID: 0}
     - target: {fileID: 2184980113096792872, guid: 38e48e6bc352bb44694f1abcec2de9f8, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2184980113096792872, guid: 38e48e6bc352bb44694f1abcec2de9f8, type: 3}
       propertyPath: _interpolationDataSource
       value: 2
       objectReference: {fileID: 0}

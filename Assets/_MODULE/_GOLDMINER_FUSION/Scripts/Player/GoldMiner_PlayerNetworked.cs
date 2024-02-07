@@ -196,6 +196,23 @@ public class GoldMiner_PlayerNetworked : PlayerNetworked
         //Local variable
         currentLocalScore = Score;
     }
+    [Rpc(sources: RpcSources.All, RpcTargets.All)]
+    public void Rpc_AddScoreToPlayer(GoldMiner_PlayerNetworked target)
+    {
+        if (IsMine) _gameManagerFusion.HandleScoreChange(target.CurrentLocalScore);
+        GoldMiner_SessionManager goldMiner_SessionManager = GoldMiner_SessionManager.instance;
+        if (goldMiner_SessionManager)
+        {
+            var player = goldMiner_SessionManager.GetPlayer(target.PlayerId);
+            if (player == null) return;
+
+            if (_playerGUI)
+            {
+                _playerGUI.SetUpTxtScore(player.PlayerId, player.GetComponent<GoldMiner_PlayerNetworked>().Score);
+            }
+            Debug.Log($"{name}: player {PlayerId} => new Score {player.GetComponent<GoldMiner_PlayerNetworked>().CurrentLocalScore}");
+        }
+    }
 }
 
 enum GoldMinerButton

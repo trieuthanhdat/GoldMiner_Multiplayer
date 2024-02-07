@@ -216,6 +216,9 @@ MonoBehaviour:
   itemSpriteConfig: {fileID: 11400000, guid: 591e7f0c79234194a97c137b77c38185, type: 2}
   _ItemScoreSync: 0
   _CurrentItemIndexSync: 0
+  _ActiveStatusSync:
+    _value: 0
+  _canPickupItemSync: 0
 --- !u!114 &-475241746712838752
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -228,7 +231,7 @@ MonoBehaviour:
   m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _interpolationDataSource: 0
+  _interpolationDataSource: 2
   InterpolationSpace: 0
   InterpolationTarget: {fileID: 1288287831630262655}
   InterpolateErrorCorrection: 1

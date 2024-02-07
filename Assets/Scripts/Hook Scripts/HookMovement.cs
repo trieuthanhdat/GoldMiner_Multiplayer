@@ -8,6 +8,7 @@ using UnityEngine;
 public class HookMovement : NetworkBehaviour
 {
     private float rotate_Speed = 55f;
+    public Vector3 HookPosition => transform.position;
     #region _____ SERIALIZED _____
     [SerializeField] float move_Speed = 3f;
     [SerializeField] float return_Speed_Modifier = 1.2f;
