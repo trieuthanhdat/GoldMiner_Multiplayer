@@ -19,8 +19,9 @@ public class HookScripts : NetworkBehaviour
     [SerializeField] private Hitbox                hookHitBox;
     [SerializeField] private LayerMask             collisionMask;
     #endregion
-    public bool IsMine => Object.HasInputAuthority;
+    public bool IsMine => Object.HasStateAuthority || Object.HasInputAuthority;
     [Networked, Capacity(50)] private NetworkArray<ItemState> _itemStates => default;
+
     private List<LagCompensatedHit> _lagCompensatedHits = new List<LagCompensatedHit>();
 
     protected SparseCollection<ItemState, GoldMiner_NetworkItem> _items;
@@ -30,6 +31,7 @@ public class HookScripts : NetworkBehaviour
     private bool _hasCollectedItem;
     private Action spawnCallback;
     private GoldMiner_NetworkItem _currentOrigin;
+
     public override void Spawned()
     {
         base.Spawned();
@@ -143,7 +145,8 @@ public class HookScripts : NetworkBehaviour
 
     private void CheckCollision()
     {
-        if (!(Object.HasStateAuthority || Object.HasInputAuthority))
+
+        if (!IsMine)
             return;
 
         if (WillHitItem(hookMovement.MoveSpeed * Runner.DeltaTime, collisionMask, out NetworkBehaviour target) != null)
@@ -163,14 +166,7 @@ public class HookScripts : NetworkBehaviour
         _items.Process(this, (ref ItemState item, int tick) =>
         {
             if (_currentOrigin == null) return false;
-/*            if(Object.HasInputAuthority)
-            {
-                _currentOrigin.transform.position = item.Position;
-            }
-            else*/
-            /*{
-                _currentOrigin.UpdatePositionOverNetwork(item.Position);
-            }*/
+            _currentOrigin.transform.position = item.Position;
             if (itemAttached == false)
             {
                 item.EndTick = Runner.Tick;
@@ -213,6 +209,8 @@ public class HookScripts : NetworkBehaviour
 
         _currentOrigin = target;
         _currentOrigin.OnPickUp(hookMovement);
+
+
         target.transform.SetParent(itemHolder);
         _currentOrigin?.gameObject?.SetActive(true);
 
@@ -242,6 +240,7 @@ public class HookScripts : NetworkBehaviour
     }
     private void HandleDeliveryItem(GoldMiner_DeliverItem delivery)
     {
+        if (!itemAttached) return;
         itemAttached = false;
         _hasGetItem = false;
         _hasCollectedItem = true;

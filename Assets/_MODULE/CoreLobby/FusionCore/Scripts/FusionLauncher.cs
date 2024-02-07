@@ -7,9 +7,6 @@ using Fusion.Sockets;
 using UnityEngine;
 using CoreLobby;
 using Cysharp.Threading.Tasks;
-using UnityEngine.UIElements;
-using static UnityEditor.FilePathAttribute;
-using Sirenix.Utilities;
 
 namespace CoreGame
 {
@@ -513,18 +510,16 @@ namespace CoreGame
         private const string BUTTON_FIRE1 = "Fire1";
         public virtual void OnInput(NetworkRunner runner, NetworkInput input)
         {
-            //MINI GAME - GOLD MINER
             if(PlayMiniGameGoldMiner)
             {
                 GoldMinerInput localInput = new GoldMinerInput();
                 localInput.Buttons.Set(GoldMinerButton.Fire, Input.GetButton(BUTTON_FIRE1));
 
-                Debug.Log($"{nameof(FusionLauncher).ToUpper()}: on input {localInput}");
+                Debug.Log($"{nameof(GoldMiner_PlayerNetworked).ToUpper()}: on input {localInput}");
                 input.Set(localInput);
                 return;
             }
             
-
             //inputData.ButtonFlags |= Input.GetKey(KeyCode.W) ? ButtonFlag.FORWARD : 0;
             //inputData.ButtonFlags |= Input.GetKey(KeyCode.A) ? ButtonFlag.LEFT : 0;
             //inputData.ButtonFlags |= Input.GetKey(KeyCode.S) ? ButtonFlag.BACKWARD : 0;

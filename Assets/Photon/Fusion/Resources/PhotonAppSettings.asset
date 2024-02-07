@@ -9,11 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 1878438611, guid: 7de3b8b9e1263ad479e2d0c4261b7646, type: 3}
   m_Name: PhotonAppSettings
-  m_EditorClassIdentifier: Fusion.Realtime:Fusion.Photon.Realtime:PhotonAppSettings
+  m_EditorClassIdentifier: 
   AppSettings:
-    AppIdFusion: a9c7b9db-2905-4901-8caa-0deaeb003b06
+    AppIdFusion: 37e48ef1-2fda-43bc-8901-b0c10412256b
     AppIdChat: 
     AppIdVoice: 
     AppVersion: 

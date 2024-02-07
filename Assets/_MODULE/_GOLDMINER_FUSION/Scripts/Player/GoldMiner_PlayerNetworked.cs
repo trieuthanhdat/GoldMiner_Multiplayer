@@ -2,13 +2,10 @@ using CoreGame;
 using CoreLobby;
 using Cysharp.Threading.Tasks;
 using Fusion;
-using Fusion.Sockets;
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class GoldMiner_PlayerNetworked : PlayerNetworked
+public class GoldMiner_PlayerNetworked : PlayerNetworked, INetworkRunnerCallbacks
 {
     [SerializeField] GoldMiner_PlayerGUI _playerGUI;
     [SerializeField] HookMovement _hookMovement;
@@ -121,25 +118,16 @@ public class GoldMiner_PlayerNetworked : PlayerNetworked
     }
     private void HandlePlayerChanged(GoldMiner_PlayerNetworked playerInfo)
     {
-        StartCoroutine(Co_HandleLocalScoreChange(playerInfo));
+        HandlePlayerChangedAsync(playerInfo).Forget();
     }
-    private IEnumerator Co_HandleLocalScoreChange(GoldMiner_PlayerNetworked playerInfo)
+    protected async  UniTaskVoid HandlePlayerChangedAsync(GoldMiner_PlayerNetworked playerInfo)
     {
-        while (GoldMiner_GameManagerFusion.Instance == null)
-            yield return new WaitForEndOfFrame();
+        await UniTask.WaitUntil(() => FusionLauncher.Session != null && GoldMiner_GameManagerFusion.Instance != null,
+                                      cancellationToken: ctsDespawned.Token);
         GoldMiner_GameManagerFusion.Instance.HandleScoreChange(playerInfo);
         if (_playerGUI) _playerGUI.SetUpTxtScore(playerInfo);
     }
     #region ====HANDLE INPUTS====
-    private const string BUTTON_FIRE1 = "Fire1";
-    public override void OnInput(NetworkRunner runner, NetworkInput input)
-    {
-        GoldMinerInput localInput = new GoldMinerInput();
-        localInput.Buttons.Set(GoldMinerButton.Fire, Input.GetButton(BUTTON_FIRE1));
-
-        Debug.Log($"{nameof(GoldMiner_PlayerNetworked).ToUpper()}: on input {localInput}");
-        input.Set(localInput);
-    }
     public override void FixedUpdateNetwork()
     {
         if (!IsMine)
@@ -148,7 +136,6 @@ public class GoldMiner_PlayerNetworked : PlayerNetworked
         {
             if (Object.IsValid && GetInput<GoldMinerInput>(out var input))
             {
-                Debug.Log($"{nameof(GoldMiner_PlayerNetworked).ToUpper()}: getting input {input}");
                 if (input.Buttons.WasPressed(_buttonsPrevious, GoldMinerButton.Fire))
                 {
                     Hook();

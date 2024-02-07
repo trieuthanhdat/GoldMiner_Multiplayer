@@ -78,7 +78,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.51, y: 0.51}
+  m_Size: {x: 0.42, y: 0.28}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -172,13 +172,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _interpolationDataSource: 0
-  _networkTransform: {fileID: 0}
   itemType: 0
   itemScore: 0
   spriteRenderer: {fileID: 5628450575825067942}
   itemSpriteConfig: {fileID: 11400000, guid: 591e7f0c79234194a97c137b77c38185, type: 2}
   _ItemScoreSync: 0
   _CurrentItemIndexSync: 0
+  _ActiveStatusSync:
+    _value: 0
+  _PositionSync: {x: 0, y: 0, z: 0}
 --- !u!114 &-475241746712838752
 MonoBehaviour:
   m_ObjectHideFlags: 0

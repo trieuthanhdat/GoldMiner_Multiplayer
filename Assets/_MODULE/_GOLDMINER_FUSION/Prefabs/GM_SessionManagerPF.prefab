@@ -74,3 +74,4 @@ MonoBehaviour:
     LobbyId: 
     SessionName: 
   _StateSyned: 0
+  managerPf: {fileID: 7510196366942034496, guid: bb22c4ffaa26aab459c43a87b82cb76e, type: 3}

@@ -123,7 +123,6 @@ namespace CoreLobby
             return false;
         }
 
-#if UNITY_EDITOR
         protected virtual void OnValidate(){}
         public virtual void OnInput(NetworkRunner runner, NetworkInput input)
         {
@@ -189,7 +188,6 @@ namespace CoreLobby
         public virtual void OnSceneLoadStart(NetworkRunner runner)
         {
         }
-#endif
 
     }
 }

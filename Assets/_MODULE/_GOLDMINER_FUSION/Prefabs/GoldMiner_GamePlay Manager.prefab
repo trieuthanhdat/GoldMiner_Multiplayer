@@ -1037,7 +1037,7 @@ GameObject:
   - component: {fileID: 7510196366942034496}
   - component: {fileID: 7105610783478056104}
   m_Layer: 0
-  m_Name: GamePlay Manager
+  m_Name: GoldMiner_GamePlay Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1078,7 +1078,7 @@ MonoBehaviour:
   _gameSessionLength: 120
   GUIMatching: {fileID: 8011965175718722322}
   GUIMain: {fileID: 7149770167411747168}
-  levelBoundaries: {fileID: 0}
+  levelBoundaries: {fileID: 4435331859904596556}
   countdownText: {fileID: 4417200650177367799}
   scoreText: {fileID: 8939361841579736579}
   scoreFillUI: {fileID: 6071993310605056285}

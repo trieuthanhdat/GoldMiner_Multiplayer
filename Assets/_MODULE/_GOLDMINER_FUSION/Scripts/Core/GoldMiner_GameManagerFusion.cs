@@ -49,7 +49,7 @@ public class GoldMiner_GameManagerFusion : NetworkBehaviour
     #endregion
 
     #region _____ NetWork _____
-    [Networked] protected TickTimer _timer { get; set; }
+    [Networked] public TickTimer _timer { get; set; }
     [Networked] private GameState _gameState { get; set; }
     [Networked] private GoldMiner_PlayerNetworked _winner { get; set; }
     #endregion
@@ -59,6 +59,8 @@ public class GoldMiner_GameManagerFusion : NetworkBehaviour
     public GameState State { get => _gameState; set => _gameState = value; }
     private PlayerAnimation playerAnim;
     private int scoreCount { get; set; } = 0;
+
+    public bool IsMine => Object.HasInputAuthority || Object.HasStateAuthority;
 
     public override void Spawned()
     {
@@ -160,7 +162,6 @@ public class GoldMiner_GameManagerFusion : NetworkBehaviour
                 break;
             case GameState.Running:
                 /*UI?.SetGameTimer(_timer.RemainingTime(Runner));*/
-                Debug.Log($"{nameof(GoldMiner_GameManagerFusion).ToUpper()}: Game state Running");
                 if (_timer.Expired(Runner))
                 {
                     EndGame();
