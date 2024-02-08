@@ -2653,7 +2653,6 @@ GameObject:
   - component: {fileID: 1705646087929143954}
   - component: {fileID: 5685547453682764183}
   - component: {fileID: 7144105522961911726}
-  - component: {fileID: 5413396767324055130}
   m_Layer: 5
   m_Name: UI Canvas
   m_TagString: Untagged
@@ -2971,7 +2970,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5413396767324055130}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: 
         m_MethodName: Resume
         m_Mode: 1
@@ -3425,18 +3424,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &5413396767324055130
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1193229817272093047}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c068a4495d674564db9b831eb1c7fbb8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &5662473908286861285
 GameObject:
   m_ObjectHideFlags: 0
@@ -4039,6 +4026,8 @@ MonoBehaviour:
   countdownText: {fileID: 4327592991139764424}
   scoreText: {fileID: 9028943507810936892}
   scoreFillUI: {fileID: 6127063514784780066}
+  playerScoreTable:
+    _items: []
 --- !u!1 &7649354408850506648
 GameObject:
   m_ObjectHideFlags: 0
@@ -4055,7 +4044,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &7733061283651958075
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4113,7 +4102,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &7933228291744346194
 Transform:
   m_ObjectHideFlags: 0
@@ -4238,7 +4227,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5413396767324055130}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: 
         m_MethodName: MainMenu
         m_Mode: 1
