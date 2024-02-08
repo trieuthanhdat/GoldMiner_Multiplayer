@@ -98,8 +98,8 @@ public class GoldMiner_GameManagerFusion : NetworkBehaviour
         var listWinner = GetTop3Winners();
         for(int i = 0; i< listWinner.Count; i++)
         {
-            Debug.Log($"{nameof(GoldMiner_GameManagerFusion)}: winner => top {i} - " +
-                      $"player {listWinner[i].Key} " +
+            Debug.Log($"{nameof(GoldMiner_GameManagerFusion)}: winner => top {i+1} - " +
+                      $"player     {listWinner[i].Key} " +
                       $"with score {listWinner[i].Value}");
         }    
         _timer = TickTimer.CreateFromSeconds(Runner, _endDelay);
