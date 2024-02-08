@@ -5,6 +5,8 @@ using UnityEngine.UI;
 using System;
 using Cysharp.Threading.Tasks;
 using TMPro;
+using System.Collections.Generic;
+using System.Linq;
 
 public class GoldMiner_GameManagerFusion : NetworkBehaviour
 {
@@ -57,10 +59,9 @@ public class GoldMiner_GameManagerFusion : NetworkBehaviour
     public bool IsServer => Runner.IsSharedModeMasterClient || Runner.IsServer;
     public float GameSessionTime => _timer.RemainingTime(Runner).GetValueOrDefault();
     public GameState State { get => _gameState; set => _gameState = value; }
-    private PlayerAnimation playerAnim;
     private int scoreCount { get; set; } = 0;
 
-    public bool IsMine => Object.HasInputAuthority || Object.HasStateAuthority;
+    public SerializableDictionary<uint, int> playerScoreTable = new SerializableDictionary<uint, int>();
 
     public override void Spawned()
     {
@@ -79,18 +80,49 @@ public class GoldMiner_GameManagerFusion : NetworkBehaviour
         GUIMatching?.SetActive(FusionLauncher.Session.StateSyned == SessionState.MATCHING);
     }
 
-    
+    public void AddToTable(uint playerId, int score)
+    {
+        if(playerScoreTable.ContainsKey(playerId))
+        {
+            playerScoreTable[playerId] = score;
+        }else
+        {
+            playerScoreTable.Add(playerId, score);
+        }
 
+    }
     private void EndGame()
     {
         if (_winner != null)
             return;
-
-        //Update winner score here
-
+        var listWinner = GetTop3Winners();
+        for(int i = 0; i< listWinner.Count; i++)
+        {
+            Debug.Log($"{nameof(GoldMiner_GameManagerFusion)}: winner => top {i} - " +
+                      $"player {listWinner[i].Key} " +
+                      $"with score {listWinner[i].Value}");
+        }    
         _timer = TickTimer.CreateFromSeconds(Runner, _endDelay);
         _gameState = GameState.Ending;
     }
+
+    public List<KeyValuePair<uint, int>> GetTop3Winners()
+    {
+        // Order the dictionary by values in descending order
+        var orderedScores = playerScoreTable.OrderByDescending(x => x.Value);
+
+        // Take the top 3 entries
+        var top3Players = orderedScores.Take(3).ToList();
+
+        return top3Players;
+    }
+
+    [Rpc (sources: RpcSources.All, RpcTargets.All)]
+    private void Rpc_UpdateWinner()
+    {
+
+    }
+
     public void OnExit()
     {
         Runner.Shutdown(false, ShutdownReason.GameIsFull);
@@ -152,6 +184,7 @@ public class GoldMiner_GameManagerFusion : NetworkBehaviour
                 int count = 0;
                 foreach (PlayerRef _ in Runner.ActivePlayers)
                     count++;
+                Debug.Log($"{nameof(GoldMiner_GameManagerFusion).ToUpper()}: Total players: {count}");
                 break;
             case GameState.Starting:
                 if (Object.HasStateAuthority && _timer.Expired(Runner))

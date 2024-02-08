@@ -2,11 +2,7 @@ using CoreGame;
 using CoreLobby;
 using Cysharp.Threading.Tasks;
 using Fusion;
-using Fusion.Sockets;
-using FusionHelpers;
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class GoldMiner_PlayerNetworked : PlayerNetworked
@@ -53,6 +49,9 @@ public class GoldMiner_PlayerNetworked : PlayerNetworked
     public override void Spawned()
     {
         base.Spawned();
+#if UNITY_EDITOR
+        name += PlayerId;
+#endif
         GoldMiner_NetworkItem.OnItemCollected += GoldMiner_NetworkItem_OnItemCollected;
         if (ColorIndex == 0) ColorIndex = (byte)(Object.InputAuthority + 1);
         if (_playerGUI) _playerGUI.SetUpPlayerGUI(PlayerId,this);
@@ -115,40 +114,45 @@ public class GoldMiner_PlayerNetworked : PlayerNetworked
     {
         await UniTask.WaitUntil(() => _gameManagerFusion.State == GoldMiner_GameManagerFusion.GameState.Running);
         this.StateSynced = StateOfPlayer.Playing;
+
     }
 
     public void InitScore()
     {
         currentLocalScore = 0;
         Score = 0;
+        
     }
+
     public static void OnPlayerChanged(Changed<GoldMiner_PlayerNetworked> playerInfo)
     {
         playerInfo.Behaviour.HandlePlayerChanged(playerInfo.Behaviour);
     }
     private void HandlePlayerChanged(GoldMiner_PlayerNetworked playerInfo)
     {
-        if (_gameManagerFusion == null) return;
-        StartCoroutine(Co_HandleScoreChange());
-        IEnumerator Co_HandleScoreChange()
-        {
-            yield return new WaitForSeconds(0.2f);
-            if (IsMine) _gameManagerFusion.HandleScoreChange(playerInfo.Score);
-            GoldMiner_SessionManager goldMiner_SessionManager = GoldMiner_SessionManager.instance;
-            if (goldMiner_SessionManager)
-            {
-                var player = goldMiner_SessionManager.GetPlayer(playerInfo.PlayerId);
-                if (player == null) yield break;
+        HandlePlayerScoreAsync(playerInfo).Forget();
+    }
+    private async UniTaskVoid HandlePlayerScoreAsync(GoldMiner_PlayerNetworked playerInfo)
+    {
+        await UniTask.WaitUntil(() => _gameManagerFusion != null &&
+                                      GoldMiner_SessionManager.instance != null);
 
-                if (_playerGUI)
-                {
-                    _playerGUI.SetUpTxtScore(player.PlayerId, player.GetComponent<GoldMiner_PlayerNetworked>().Score);
-                }
-                Debug.Log($"{name}: player {PlayerId} => new Score {player.GetComponent<GoldMiner_PlayerNetworked>().CurrentLocalScore}");
+        if (IsMine) _gameManagerFusion.HandleScoreChange(playerInfo.CurrentLocalScore);
+        _gameManagerFusion.AddToTable(playerInfo.PlayerId, playerInfo.CurrentLocalScore);
+
+        GoldMiner_SessionManager goldMiner_SessionManager = GoldMiner_SessionManager.instance;
+        if (goldMiner_SessionManager)
+        {
+            var player = goldMiner_SessionManager.GetPlayer(playerInfo.PlayerId);
+            if (player == null) return;
+
+            if (_playerGUI)
+            {
+                _playerGUI.SetUpTxtScore(player.PlayerId, player.GetComponent<GoldMiner_PlayerNetworked>().CurrentLocalScore);
             }
+            Debug.Log($"{name}: player {PlayerId} => new Score {player.GetComponent<GoldMiner_PlayerNetworked>().CurrentLocalScore}");
         }
     }
-    
 
     #region ====HANDLE INPUTS====
     private const string BUTTON_FIRE1 = "Fire1";
@@ -183,18 +187,13 @@ public class GoldMiner_PlayerNetworked : PlayerNetworked
     {
         if (_hookMovement) _hookMovement.StartHook();
     }
-    public void AddToScore(int score)
-    {
-        Score += score;
-        //Local variable
-        currentLocalScore = Score;
-    }
+    
     public void AdToScore(int score, uint collectorID)
     {
         if (collectorID != this.PlayerId) return;
         Score += score;
         //Local variable
-        currentLocalScore = Score;
+        currentLocalScore += score;
     }
     [Rpc(sources: RpcSources.All, RpcTargets.All)]
     public void Rpc_AddScoreToPlayer(GoldMiner_PlayerNetworked target)
